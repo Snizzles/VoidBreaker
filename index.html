@@ -20,28 +20,43 @@ canvas{display:block}
 .btn:hover,.btn:active{background:linear-gradient(135deg,#4028a8,#7050e8);box-shadow:0 0 22px #a070ff;transform:scale(1.06)}
 
 /* ── LEVEL UP ── */
-#lu-overlay{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,16,0.92);z-index:90}
+#lu-overlay{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,16,0.93);z-index:90}
 #lu-overlay.hidden{display:none}
-#lu-title{font-size:clamp(18px,3.5vw,42px);color:#ffdd22;text-shadow:0 0 16px #ffaa00;margin-bottom:26px;letter-spacing:3px}
-.cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:0 18px;max-width:880px}
-.card{background:linear-gradient(135deg,#090920,#121235);border:2px solid #2828a0;border-radius:9px;padding:18px 14px;width:clamp(130px,26vw,210px);cursor:pointer;transition:all .15s;touch-action:manipulation;text-align:center}
+#lu-title{font-size:clamp(18px,3.5vw,42px);color:#ffdd22;text-shadow:0 0 16px #ffaa00;margin-bottom:6px;letter-spacing:3px}
+#lu-sub{font-size:clamp(10px,1.5vw,14px);color:#7070aa;margin-bottom:22px;letter-spacing:1px}
+.cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:0 18px;max-width:920px}
+.card{background:linear-gradient(135deg,#090920,#121235);border:2px solid #2828a0;border-radius:9px;padding:16px 14px 14px;width:clamp(140px,28vw,220px);cursor:pointer;transition:all .15s;touch-action:manipulation;text-align:center}
 .card:hover,.card:active{border-color:#a060ff;background:linear-gradient(135deg,#131330,#222255);box-shadow:0 0 22px rgba(160,96,255,.5);transform:translateY(-5px)}
 .card.w{border-color:#3878ff}.card.w:hover,.card.w:active{border-color:#88ccff;box-shadow:0 0 22px rgba(56,120,255,.5)}
 .card.p{border-color:#38b058}.card.p:hover,.card.p:active{border-color:#70f090;box-shadow:0 0 22px rgba(56,176,88,.5)}
-.ci{font-size:30px;margin-bottom:9px}
-.cn{font-size:clamp(10px,1.4vw,13px);font-weight:bold;color:#ddd;margin-bottom:5px;letter-spacing:1px}
-.cl{font-size:10px;color:#777;margin-bottom:7px}
-.cd{font-size:clamp(9px,1.1vw,11px);color:#aaa;line-height:1.4}
+.card-tag{font-size:9px;letter-spacing:2px;padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:8px;font-weight:bold}
+.tag-w{background:#1a2a60;color:#6699ff}
+.tag-p{background:#0d2a18;color:#44cc66}
+.tag-h{background:#2a1020;color:#ff6080}
+.ci{font-size:28px;margin-bottom:6px}
+.cn{font-size:clamp(10px,1.4vw,13px);font-weight:bold;color:#ddd;margin-bottom:4px;letter-spacing:1px}
+.cl{font-size:10px;color:#888;margin-bottom:6px}
+.cd{font-size:clamp(9px,1.2vw,12px);color:#c0c0e0;line-height:1.5;font-weight:bold}
 
 /* ── HUD ── */
-#hud{position:fixed;top:0;left:0;right:0;pointer-events:none;z-index:50}
-#xp-wrap{width:100%;height:7px;background:#0d0d26;border-bottom:1px solid #22224a}
-#xp-fill{height:100%;background:linear-gradient(90deg,#3838ff,#a060ff);box-shadow:0 0 9px #7050ff;transition:width .12s}
-#hud-row{display:flex;justify-content:space-between;align-items:center;padding:7px 14px}
-.hs{font-size:clamp(10px,1.6vw,15px);text-shadow:0 0 8px currentColor}
-#h-lvl{color:#b070ff}
-#h-time{color:#50d0ff;font-size:clamp(14px,2.5vw,22px);font-weight:bold}
-#h-kills{color:#ffaa22}
+#hud{position:fixed;top:0;left:0;right:0;pointer-events:none;z-index:50;background:rgba(4,0,18,.82);border-bottom:1px solid #2a1a60}
+#hud-top{display:flex;align-items:center;gap:12px;padding:8px 14px 4px}
+.hs{font-size:clamp(10px,1.6vw,15px);text-shadow:0 0 8px currentColor;white-space:nowrap}
+#h-lvl{color:#c080ff;font-size:clamp(14px,2.2vw,20px);font-weight:bold;letter-spacing:1px;min-width:52px}
+#xp-section{flex:1;display:flex;flex-direction:column;gap:3px}
+#xp-wrap{width:100%;height:16px;background:#0a0a22;border-radius:8px;overflow:hidden;border:1px solid #3030a0;position:relative}
+#xp-fill{height:100%;background:linear-gradient(90deg,#4848ff,#c070ff);border-radius:8px;transition:width .14s;position:relative}
+#xp-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.25) 0%,transparent 60%);border-radius:8px}
+@keyframes xp-pop{0%,100%{box-shadow:0 0 10px #9060ff}50%{box-shadow:0 0 28px #e090ff,0 0 55px #b060ff}}
+.xp-pop{animation:xp-pop .45s ease-out}
+#xp-label{font-size:clamp(9px,1.2vw,12px);color:#9090cc;text-align:center;letter-spacing:.5px}
+#hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+#h-time{color:#50d0ff;font-size:clamp(13px,2vw,19px);font-weight:bold}
+#h-kills{color:#ffaa22;font-size:clamp(9px,1.2vw,12px)}
+
+/* ── TUTORIAL HINT ── */
+#hint{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(10,0,30,.88);border:1px solid #5535cc;border-radius:8px;padding:10px 20px;font-size:clamp(11px,1.6vw,14px);color:#c0b0ff;text-align:center;z-index:60;pointer-events:none;transition:opacity 1s;white-space:nowrap}
+#hint.fade{opacity:0}
 
 #hp-wrap{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:clamp(160px,35vw,240px);height:13px;background:#200010;border:1px solid #440020;border-radius:7px;z-index:50;pointer-events:none;overflow:hidden}
 #hp-fill{height:100%;background:linear-gradient(90deg,#ff2040,#ff6080);border-radius:7px;box-shadow:0 0 9px #ff2040;transition:width .15s}
@@ -70,13 +85,19 @@ canvas{display:block}
 <canvas id="gc"></canvas>
 
 <div id="hud">
-  <div id="xp-wrap"><div id="xp-fill" style="width:0%"></div></div>
-  <div id="hud-row">
+  <div id="hud-top">
     <span class="hs" id="h-lvl">LVL 1</span>
-    <span class="hs" id="h-time">00:00</span>
-    <span class="hs" id="h-kills">0 KILLS</span>
+    <div id="xp-section">
+      <div id="xp-wrap"><div id="xp-fill" style="width:0%"></div></div>
+      <div id="xp-label">0 / 12 XP &nbsp;·&nbsp; kill enemies, collect ◆ gems</div>
+    </div>
+    <div id="hud-right">
+      <span class="hs" id="h-time">00:00</span>
+      <span class="hs" id="h-kills">0 ☠</span>
+    </div>
   </div>
 </div>
+<div id="hint">Kill enemies → collect ◆ glowing gems → fill the XP bar → level up → pick a power!</div>
 <div id="hp-wrap"><div id="hp-fill" style="width:100%"></div></div>
 <div id="boss-wrap">
   <div id="boss-name">VOID TITAN</div>
@@ -88,8 +109,9 @@ canvas{display:block}
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
   <div class="overlay-sub" id="ov-sub">
-    Survive the cosmic void. Auto-attack. Grow unstoppable.<br>
-    WASD / Arrow Keys &nbsp;|&nbsp; Touch joystick on mobile
+    Move to dodge. Weapons fire <b style="color:#c080ff">automatically</b>.<br>
+    Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
+    <span style="color:#606090">WASD / Arrows &nbsp;|&nbsp; Touch joystick on mobile</span>
   </div>
   <div id="end-stats" style="display:none"></div>
   <button class="btn" id="start-btn" onclick="startGame()">BEGIN MISSION</button>
@@ -99,6 +121,7 @@ canvas{display:block}
 <!-- Level Up Overlay -->
 <div id="lu-overlay" class="hidden">
   <div id="lu-title">⚡ LEVEL UP ⚡</div>
+  <div id="lu-sub">GAME PAUSED — click a card to pick your upgrade</div>
   <div class="cards" id="cards"></div>
 </div>
 
@@ -979,16 +1002,21 @@ function draw(g){
 // ═══════════════════════════════════════════
 // HUD UPDATE
 // ═══════════════════════════════════════════
+let lastXPPct=0;
 function updateHUD(g){
   const p=g.p,ps=pStats(g);
-  document.getElementById('xp-fill').style.width=(Math.min(100,(p.xp/p.xpNext)*100))+'%';
+  const xpPct=Math.min(100,(p.xp/p.xpNext)*100);
+  const fill=document.getElementById('xp-fill');
+  fill.style.width=xpPct+'%';
+  // Pulse bar when XP increases
+  if(xpPct>lastXPPct){fill.classList.remove('xp-pop');void fill.offsetWidth;fill.classList.add('xp-pop')}
+  lastXPPct=xpPct;
+  document.getElementById('xp-label').textContent=`${Math.floor(p.xp)} / ${p.xpNext} XP  ·  next level up`;
   document.getElementById('h-lvl').textContent='LVL '+p.lv;
-  document.getElementById('h-kills').textContent=g.kills+' KILLS';
+  document.getElementById('h-kills').textContent=g.kills+' ☠';
   const m=Math.floor(g.time/60),s=Math.floor(g.time%60);
   document.getElementById('h-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  const hpPct=(p.hp/p.maxHp)*100;
-  document.getElementById('hp-fill').style.width=hpPct+'%';
-  // Weapons list
+  document.getElementById('hp-fill').style.width=(p.hp/p.maxHp)*100+'%';
   const wh=document.getElementById('weapons-hud');
   wh.innerHTML=p.weapons.map(w=>`<div class="wslot">${WDEFS[w.id].icon} ${WDEFS[w.id].name} <span style="color:#ffdd22">Lv${w.lv}</span></div>`).join('');
 }
@@ -1007,19 +1035,29 @@ function showLU(g){
     if(c.type==='w'){
       const d=WDEFS[c.id],lv=c.isNew?0:c.cur;
       card.className='card w';
-      card.innerHTML=`<div class="ci">${d.icon}</div><div class="cn">${d.name}</div>
-        <div class="cl">${c.isNew?'NEW WEAPON':'Lv '+lv+' → '+(lv+1)}</div>
+      card.innerHTML=`
+        <div class="card-tag tag-w">${c.isNew?'🗡 NEW WEAPON':'🗡 WEAPON UPGRADE'}</div>
+        <div class="ci">${d.icon}</div>
+        <div class="cn">${d.name}</div>
+        <div class="cl">${c.isNew?'Fires automatically — no aim needed':'Level '+lv+' → '+(lv+1)}</div>
         <div class="cd">${d.ld[lv]||d.desc}</div>`;
     }else if(c.type==='p'){
       const d=PDEFS[c.id],lv=c.cur;
       card.className='card p';
-      card.innerHTML=`<div class="ci">${d.icon}</div><div class="cn">${d.name}</div>
-        <div class="cl">${lv===0?'NEW':'Lv '+lv+' → '+(lv+1)}</div>
+      card.innerHTML=`
+        <div class="card-tag tag-p">${lv===0?'✦ NEW BOOST':'✦ PASSIVE BOOST'}</div>
+        <div class="ci">${d.icon}</div>
+        <div class="cn">${d.name}</div>
+        <div class="cl">${lv===0?'Permanent stat bonus':'Level '+lv+' → '+(lv+1)}</div>
         <div class="cd">${d.ld[lv]||d.desc}</div>`;
     }else{
       card.className='card';
-      card.innerHTML=`<div class="ci">💊</div><div class="cn">EMERGENCY HEAL</div>
-        <div class="cl">CONSUMABLE</div><div class="cd">Restore 60 HP</div>`;
+      card.innerHTML=`
+        <div class="card-tag tag-h">♥ CONSUMABLE</div>
+        <div class="ci">💊</div>
+        <div class="cn">EMERGENCY HEAL</div>
+        <div class="cl">Instant use</div>
+        <div class="cd">Restore 60 HP right now</div>`;
     }
     card.addEventListener('click',()=>{
       applyChoice(g,c);g.pendingLU--;
@@ -1078,6 +1116,12 @@ function startGame(){
   parts=[];
   camX=0;camY=0;
   shk=0;shkX=0;shkY=0;
+  lastXPPct=0;
+  // Tutorial hint — show for 7s then fade
+  const hint=document.getElementById('hint');
+  hint.style.display='block';hint.classList.remove('fade');
+  setTimeout(()=>hint.classList.add('fade'),5000);
+  setTimeout(()=>hint.style.display='none',6200);
   G=mkGame();
   // Start with Void Pulse
   G.p.weapons.push({id:0,lv:1,timer:0,angle:0});
@@ -1097,6 +1141,7 @@ function startGame(){
 // ── BOOT ──
 document.getElementById('hud').style.display='none';
 document.getElementById('hp-wrap').style.display='none';
+document.getElementById('hint').style.display='none';
 lastT=performance.now();
 requestAnimationFrame(loop);
 </script>
