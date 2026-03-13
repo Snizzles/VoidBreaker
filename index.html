@@ -304,13 +304,20 @@ function drawParts(){
 }
 
 // ═══════════════════════════════════════════
-// SCREEN SHAKE
+// SCREEN SHAKE + FLASH
 // ═══════════════════════════════════════════
 let shk=0,shkX=0,shkY=0;
 function shake(a){shk=Math.max(shk,a)}
 function updateShake(dt){
   if(shk>0){shkX=rnd(-shk,shk);shkY=rnd(-shk,shk);shk=Math.max(0,shk-100*dt)}
   else shkX=shkY=0;
+}
+let flashAlpha=0,flashCol='#ffffff';
+function flashScreen(col,alpha){flashCol=col;flashAlpha=Math.max(flashAlpha,alpha)}
+function updateFlash(dt){if(flashAlpha>0)flashAlpha=Math.max(0,flashAlpha-dt*3)}
+function drawFlash(){
+  if(flashAlpha<=0)return;
+  ctx.globalAlpha=flashAlpha;ctx.fillStyle=flashCol;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;
 }
 
 // ═══════════════════════════════════════════
@@ -391,23 +398,23 @@ const WDEFS=[
 // PASSIVE DEFINITIONS
 // ═══════════════════════════════════════════
 const PDEFS=[
-  {id:0,name:'POWER CORE',icon:'⚡',col:'#ffdd00',desc:'All weapon damage +20% per level',maxLv:5,
-    ld:['+20% dmg','+40% dmg','+60% dmg','+80% dmg','+100% dmg'],
+  {id:0,name:'POWER CORE',icon:'⚡',col:'#ffdd00',desc:'All weapons deal more damage',maxLv:5,
+    ld:['Weapons deal 20% more damage','Weapons deal 40% more damage','Weapons deal 60% more damage','Weapons deal 80% more damage','ALL WEAPONS DO DOUBLE DAMAGE'],
     stats(lv){return{dmgMult:1+lv*.2}}},
-  {id:1,name:'PHASE DRIVE',icon:'💨',col:'#60ddff',desc:'Movement speed +15% per level',maxLv:5,
-    ld:['+15% spd','+30% spd','+45% spd','+60% spd','+75% spd'],
+  {id:1,name:'PHASE DRIVE',icon:'💨',col:'#60ddff',desc:'Move faster',maxLv:5,
+    ld:['Move 15% faster','Move 30% faster','Move 45% faster','Move 60% faster','Move 75% faster'],
     stats(lv){return{spdMult:1+lv*.15}}},
-  {id:2,name:'HP MATRIX',icon:'❤️',col:'#ff4060',desc:'Max HP +30 per level',maxLv:5,
-    ld:['+30 HP','+60 HP','+90 HP','+120 HP','+150 HP'],
+  {id:2,name:'HP MATRIX',icon:'❤️',col:'#ff4060',desc:'Increase max health',maxLv:5,
+    ld:['+30 max HP (heals too)','+60 max HP (heals too)','+90 max HP (heals too)','+120 max HP (heals too)','+150 max HP (heals too)'],
     stats(lv){return{hpBonus:lv*30}}},
-  {id:3,name:'MAGNET FIELD',icon:'🧲',col:'#40c0ff',desc:'XP pickup range +60 per level',maxLv:5,
-    ld:['+60 range','+120 range','+180 range','+240 range','+300 range'],
+  {id:3,name:'MAGNET FIELD',icon:'🧲',col:'#40c0ff',desc:'Pull XP gems from further away',maxLv:5,
+    ld:['Gems attract from further away','Much larger gem pull range','Large gem pull range','Very large gem pull range','Massive gem pull — auto-collect everything'],
     stats(lv){return{magnet:80+lv*60}}},
-  {id:4,name:'CHRONO CHIP',icon:'⏱️',col:'#c0ff40',desc:'Weapon cooldowns -12% per level',maxLv:5,
-    ld:['-12% CD','-24% CD','-36% CD','-48% CD','-60% CD'],
+  {id:4,name:'CHRONO CHIP',icon:'⏱️',col:'#c0ff40',desc:'All weapons shoot/trigger faster',maxLv:5,
+    ld:['Weapons fire 12% faster','Weapons fire 24% faster','Weapons fire 36% faster','Weapons fire 48% faster','Weapons fire 60% faster — near constant barrage'],
     stats(lv){return{cdMult:1-lv*.12}}},
-  {id:5,name:'VOID SHIELD',icon:'🛡️',col:'#a0a0ff',desc:'Reduce all incoming damage',maxLv:5,
-    ld:['-8 dmg','-16 dmg','-24 dmg','-32 dmg','-40 dmg'],
+  {id:5,name:'VOID SHIELD',icon:'🛡️',col:'#a0a0ff',desc:'Take less damage from all hits',maxLv:5,
+    ld:['Take 8 less damage per hit','Take 16 less damage per hit','Take 24 less damage per hit','Take 32 less damage per hit','Take 40 less damage per hit — near immune to weak enemies'],
     stats(lv){return{armor:lv*8}}}
 ];
 
@@ -446,7 +453,8 @@ function mkGame(){
       iframes:0,lastAngle:0
     },
     enemies:[],projs:[],gems:[],bombs:[],bolts:[],
-    spawnT:2.5,spawnInt:1.5,// 2.5s grace period before first enemy wave
+    spawnT:2.5,spawnInt:1.5,
+    combo:0,comboTimer:0,comboMax:0,// kill combo system
     bossActive:null,
     pendingLU:0,
     nextBoss:120,// seconds until next boss
@@ -598,7 +606,7 @@ function gainXP(g,amt){
     g.pendingLU++;snd('levelup');
   }
   if(g.pendingLU>0&&g.state==='playing'){
-    g.state='levelup';showLU(g);
+    g.state='levelup';flashScreen('#c080ff',.35);showLU(g);
   }
 }
 
@@ -787,12 +795,32 @@ function update(g,dt){
     // Death
     if(e.hp<=0){
       const gc=e.boss?18:1,xg=e.xp/gc;
-      for(let gi=0;gi<gc;gi++)g.gems.push({x:e.x+rnd(-22,22),y:e.y+rnd(-22,22),xp:xg,
-        sz:e.boss?9:(e.xp>5?6:4),col:e.boss?'#ffdd00':(e.xp>5?'#80ff40':'#40ffb0')});
+      for(let gi=0;gi<gc;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
+        sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffdd00':(e.xp>5?'#80ff40':'#40ffb0')});
       if(Math.random()<(e.boss?.85:.05))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?35:18});
-      spawnParts(e.x,e.y,e.boss?35:14,e.col,160,.65,e.sz*.5);
-      if(e.boss){snd('explode');shake(14);document.getElementById('boss-wrap').style.display='none';g.bossActive=null}
-      g.kills++;g.score+=e.sc;
+      // Juicy death particles
+      spawnParts(e.x,e.y,e.boss?60:20,e.col,e.boss?220:180,.8,e.sz*.6);
+      spawnParts(e.x,e.y,e.boss?30:10,'#ffffff',e.boss?180:140,.4,e.sz*.3);
+      if(e.boss){
+        snd('explode');shake(18);flashScreen('#ff40a0',0.55);
+        spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
+        document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
+        spawnNum(e.x,e.y-60,999,'#ffdd00');
+      }else{
+        snd('hit');shake(1.5);
+      }
+      // Combo system
+      g.combo++;g.comboTimer=2.2;
+      if(g.combo>g.comboMax)g.comboMax=g.combo;
+      if(g.combo>=3){
+        const comboCol=g.combo>=10?'#ff4040':g.combo>=6?'#ffaa00':'#ffff00';
+        spawnNum(e.x,e.y-e.sz-10,0,comboCol);// triggers combo text in spawnNum override below
+        // Overwrite last entry with combo text
+        parts[parts.length-1].txt=`x${g.combo} COMBO!`;
+        parts[parts.length-1].sz=g.combo>=10?22:g.combo>=6?18:14;
+        parts[parts.length-1].vy=-110;parts[parts.length-1].life=1;parts[parts.length-1].ml=1;
+      }
+      g.kills++;g.score+=e.sc*(g.combo>=3?1+g.combo*.1:1);
       g.enemies.splice(i,1);continue;
     }
 
@@ -837,8 +865,11 @@ function update(g,dt){
     g.spawnT=g.spawnInt;
   }
 
+  // Combo decay
+  if(g.comboTimer>0){g.comboTimer-=dt;if(g.comboTimer<=0)g.combo=0}
   updateParts(dt);
   updateShake(dt);
+  updateFlash(dt);
   updateHUD(g);
 }
 
@@ -861,16 +892,33 @@ function draw(g){
 
   // ── GEMS ──
   for(const gem of g.gems){
+    const pulse=.7+Math.sin(now*5+gem.x*.05)*0.3;// each gem pulses independently
     if(gem.heart){
-      ctx.shadowBlur=0;ctx.font='16px serif';ctx.textAlign='center';
-      ctx.fillStyle=gem.col;ctx.fillText('♥',gem.x,gem.y+5);
+      const hs=14+Math.sin(now*4+gem.y*.04)*2;
+      ctx.shadowColor='#ff4060';ctx.shadowBlur=18*pulse;
+      ctx.font=`${hs}px serif`;ctx.textAlign='center';
+      ctx.fillStyle='#ff6080';ctx.fillText('♥',gem.x,gem.y+5);
+      ctx.shadowBlur=0;
     }else{
-      ctx.shadowColor=gem.col;ctx.shadowBlur=9;ctx.fillStyle=gem.col;
-      ctx.save();ctx.translate(gem.x,gem.y);ctx.rotate(Math.PI/4);
-      ctx.fillRect(-gem.sz/2,-gem.sz/2,gem.sz,gem.sz);
+      const sz=gem.sz*1.9*pulse;// much bigger + pulse
+      // Outer glow ring
+      ctx.shadowColor=gem.col;ctx.shadowBlur=22+14*pulse;
+      ctx.fillStyle=gem.col+'55';
+      ctx.beginPath();ctx.arc(gem.x,gem.y,sz*1.4,0,PI2);ctx.fill();
+      // Gem body (spinning diamond)
+      ctx.fillStyle=gem.col;ctx.shadowBlur=18+10*pulse;
+      ctx.save();ctx.translate(gem.x,gem.y);ctx.rotate(now*2+gem.x*.01);
+      ctx.beginPath();
+      ctx.moveTo(0,-sz);ctx.lineTo(sz*.6,0);ctx.lineTo(0,sz);ctx.lineTo(-sz*.6,0);
+      ctx.closePath();ctx.fill();
+      // Bright core
+      ctx.fillStyle='#ffffff';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(0,0,sz*.3,0,PI2);ctx.fill();
       ctx.restore();
+      ctx.shadowBlur=0;
+      // Occasional sparkle
+      if(Math.random()<.04)spawnParts(gem.x+rnd(-6,6),gem.y+rnd(-6,6),1,gem.col,30,.4,2);
     }
-    ctx.shadowBlur=0;
   }
 
   // ── GRAVITY VORTEX AURA ──
@@ -997,6 +1045,23 @@ function draw(g){
 
   ctx.restore();
   ctx.textAlign='left';
+
+  // ── SCREEN FLASH (drawn after restore, in screen space) ──
+  drawFlash();
+
+  // ── LIVE COMBO COUNTER (screen space) ──
+  if(g.combo>=3&&g.comboTimer>0){
+    const alpha=Math.min(1,g.comboTimer);
+    const scale=g.combo>=10?1.4:g.combo>=6?1.2:1;
+    const col=g.combo>=10?'#ff4040':g.combo>=6?'#ffaa00':'#ffff00';
+    ctx.globalAlpha=alpha;
+    ctx.font=`bold ${Math.floor(28*scale)}px 'Courier New'`;
+    ctx.textAlign='center';
+    ctx.fillStyle=col;
+    ctx.shadowColor=col;ctx.shadowBlur=20;
+    ctx.fillText(`★ x${g.combo} COMBO! ★`,W/2,H*.35);
+    ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.textAlign='left';
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1088,8 +1153,9 @@ function endScreen(g,won){
   stats.style.display='block';
   stats.innerHTML=`Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
+    Best Combo: <span class="sh">x${g.comboMax}</span><br>
     Level: <span class="sh">${g.p.lv}</span><br>
-    Score: <span class="sh">${g.score.toLocaleString()}</span><br>
+    Score: <span class="sh">${Math.floor(g.score).toLocaleString()}</span><br>
     Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span>`;
   document.getElementById('start-btn').style.display='none';
   document.getElementById('retry-btn').style.display='block';
@@ -1116,7 +1182,7 @@ function startGame(){
   parts=[];
   camX=0;camY=0;
   shk=0;shkX=0;shkY=0;
-  lastXPPct=0;
+  lastXPPct=0;flashAlpha=0;
   // Tutorial hint — show for 7s then fade
   const hint=document.getElementById('hint');
   hint.style.display='block';hint.classList.remove('fade');
