@@ -767,10 +767,17 @@ function update(g,dt){
     // Leaper: occasional charge
     if(e.leaper){
       e.leapTimer-=dt;
+      // Telegraph: flash yellow when about to leap
+      if(e.leapTimer<0.35)e.flash=Math.max(e.flash,0.1);
       if(e.leapTimer<=0){
-        e.leapTimer=rnd(1.5,3.5);
-        const a=angle(e,p);e.x+=Math.cos(a)*120;e.y+=Math.sin(a)*120;
-        spawnParts(e.x,e.y,8,e.col,100,.3,4);
+        e.leapTimer=rnd(2,4);
+        const a=angle(e,p);
+        const d=dist(e,p);
+        // Clamp leap so it stops at least 75 units from player (never lands on them)
+        const leapAmt=Math.min(120, Math.max(0, d-75));
+        e.x+=Math.cos(a)*leapAmt;e.y+=Math.sin(a)*leapAmt;
+        spawnParts(e.x,e.y,10,e.col,120,.35,4);
+        shake(2);
       }
     }
 
