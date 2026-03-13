@@ -501,7 +501,7 @@ function getChoices(g){
 }
 
 function applyChoice(g,c){
-  const p=g.p,s=pStats(g);
+  const p=g.p;
   if(c.type==='w'){
     const ex=p.weapons.find(w=>w.id===c.id);
     if(!ex)p.weapons.push({id:c.id,lv:1,timer:0,angle:0});
@@ -527,8 +527,9 @@ function spawnEnemy(g,typeId){
   let base;
   if(typeId!==undefined){base={...ETYPES[typeId]}}
   else base={...pick(g.time)};
-  const scale=1+g.time/100;
-  const e={...base,x,y,maxHp:base.hp*scale,hp:base.hp*scale,dmg:base.dmg*(1+g.time/160),flash:0,tpTimer:rnd(3,7),leapTimer:rnd(1.5,3)};
+  const scale=Math.min(1+g.time/100, 7);// cap at 7× HP
+  const dmgScale=Math.min(1+g.time/160, 4);// cap at 4× damage
+  const e={...base,x,y,maxHp:base.hp*scale,hp:base.hp*scale,dmg:base.dmg*dmgScale,flash:0,tpTimer:rnd(3,7),leapTimer:rnd(1.5,3)};
   g.enemies.push(e);
 }
 
@@ -642,7 +643,6 @@ function update(g,dt){
   for(const w of p.weapons){
     const wd=WDEFS[w.id];
     const ws=wd.stats(w.lv);
-    const dmg=ws.dmg*(ws.dps||1)*ps.dmgMult; // dps-based vs projectile
 
     if(w.id===0){// Void Pulse
       w.timer-=dt/ps.cdMult;
@@ -788,9 +788,12 @@ function update(g,dt){
     // Boss rotation
     if(e.boss)e.rot=(e.rot||0)+2*dt;
 
-    // Move
-    const ea=angle(e,p);
-    e.x+=Math.cos(ea)*e.spd*dt;e.y+=Math.sin(ea)*e.spd*dt;
+    // Move — only if not already overlapping player (prevents atan2(0,0) drift)
+    const edp=dist2(e,p);
+    if(edp>(e.sz+12)*(e.sz+12)){
+      const ea=angle(e,p);
+      e.x+=Math.cos(ea)*e.spd*dt;e.y+=Math.sin(ea)*e.spd*dt;
+    }
 
     // Death
     if(e.hp<=0){
@@ -859,7 +862,7 @@ function update(g,dt){
   // ── SPAWNING ──
   g.spawnT-=dt;
   if(g.spawnT<=0){
-    const cnt=1+Math.floor(g.time/28);
+    const cnt=Math.min(8,1+Math.floor(g.time/28));// cap at 8 per wave
     for(let i=0;i<cnt;i++)spawnEnemy(g);
     g.spawnInt=Math.max(.35,1.5-g.time*.003);
     g.spawnT=g.spawnInt;
@@ -1068,6 +1071,7 @@ function draw(g){
 // HUD UPDATE
 // ═══════════════════════════════════════════
 let lastXPPct=0;
+let hintTimers=[];
 function updateHUD(g){
   const p=g.p,ps=pStats(g);
   const xpPct=Math.min(100,(p.xp/p.xpNext)*100);
@@ -1183,11 +1187,12 @@ function startGame(){
   camX=0;camY=0;
   shk=0;shkX=0;shkY=0;
   lastXPPct=0;flashAlpha=0;
-  // Tutorial hint — show for 7s then fade
+  // Tutorial hint — cancel any previous timers, show for 5s then fade
+  hintTimers.forEach(clearTimeout);hintTimers=[];
   const hint=document.getElementById('hint');
   hint.style.display='block';hint.classList.remove('fade');
-  setTimeout(()=>hint.classList.add('fade'),5000);
-  setTimeout(()=>hint.style.display='none',6200);
+  hintTimers.push(setTimeout(()=>hint.classList.add('fade'),5000));
+  hintTimers.push(setTimeout(()=>hint.style.display='none',6200));
   G=mkGame();
   // Start with Void Pulse
   G.p.weapons.push({id:0,lv:1,timer:0,angle:0});
