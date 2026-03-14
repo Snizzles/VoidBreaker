@@ -7,12 +7,14 @@ This document tracks planned features, improvements, and long-term design goals.
 ## Near-Term (v1.x)
 
 ### Gameplay
-- [ ] **Pause menu** — allow pausing mid-run with keybind (Escape)
+- [x] **Pause menu** — ESC to pause/resume, overlay with resume button (v1.6.0)
 - [ ] **Volume control** — mute toggle and basic slider in the overlay
 - [ ] **Difficulty modes** — Easy / Normal / Void (harder). Void mode scales enemies more aggressively and disables hearts
 - [ ] **Hard-mode unlocks** — clear Normal to unlock Void difficulty
 - [x] **Key collection win condition** — collect 3 scattered keys before 10:00 to win; replaces pure survival timer (v1.4.0)
 - [x] **Key difficulty rebalance** — keys spawn further out (1800-2800px) and are guarded by enemy clusters that spawn on approach (v1.5.0)
+- [x] **Void Gate + Void Beast final boss** — collecting all 3 keys requires returning to origin and defeating the Void Beast (2500 HP, ranged crimson bolts) to win (v1.6.0)
+- [x] **Phantom teleport fix** — minimum teleport distance increased from 60px to 140px so phantoms no longer land on top of the player (v1.6.0)
 - [ ] **Run timer display improvement** — show a ghost timer comparing current run to personal best
 
 ### Weapons

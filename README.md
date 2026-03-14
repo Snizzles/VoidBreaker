@@ -11,11 +11,12 @@ A browser-based auto-shooter in the spirit of *Vampire Survivors* — survive en
 | Input | Action |
 |-------|--------|
 | `WASD` / Arrow Keys | Move |
+| `Escape` | Pause / Resume |
 | Touch left side of screen | Virtual joystick (mobile) |
 
 Weapons fire **automatically** — your only job is to move.
 
-**Goal:** Collect all 3 🔑 keys scattered across the map before 10:00 to break the void. Kill enemies → collect ◆ gems → fill XP bar → level up → pick upgrades to survive long enough.
+**Goal:** Collect all 3 🔑 keys scattered across the map, return to the **Void Gate** at the center, and defeat the **Void Beast** final boss to escape the void — all before 10:00. Kill enemies → collect ◆ gems → fill XP bar → level up → pick upgrades to survive long enough.
 
 ---
 
@@ -56,6 +57,8 @@ Each weapon has 8 upgrade levels unlocked through the level-up system.
 
 Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singularity**.
 
+The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has 2500 HP and fires crimson bolts at the player.
+
 ---
 
 ## Survival Tips
@@ -66,7 +69,8 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 - **Kill streaks matter.** Combos multiply score — keep the chain going for bonus points.
 - **Follow the arrows.** Off-screen key indicators point you toward uncollected keys with distance readouts.
 - **Prepare for guardians.** Each key is defended by a Brute and a cluster of enemies that spawn when you get close.
-- Collect all 3 keys before 10:00 to win.
+- **Return to the Void Gate.** After collecting all 3 keys, a gold arrow guides you back to the map origin.
+- **Defeat the Void Beast.** The final boss guards your escape — dodge its crimson bolts and finish it off to win.
 
 ---
 
@@ -83,6 +87,7 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 
 | Version | Notes |
 |---------|-------|
+| v1.6.0 | Void Gate + Void Beast final boss; ESC pause menu; phantom teleport distance fix |
 | v1.5.0 | Key difficulty rebalance: keys spawn 3× further out (1800-2800px); guardian enemies (elite Brute + Crawler/Swarm cluster) spawn to defend each key on approach |
 | v1.4.0 | Performance overhaul (no shadowBlur, off-screen culling, enemy cap); key collection win condition; off-screen key indicators; auto-skip level-up when maxed; heal always offered |
 | v1.3.0 | Performance pass; reduce round to 10 minutes |
