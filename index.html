@@ -523,7 +523,8 @@ function mkGame(){
     nextBoss:120,// seconds until next boss
     keys:[],keysCollected:false,
     bossKills:0,
-    voidBeastPhase:null,// null | 'active' | 'defeated'
+    voidBeastPhase:null,// null | 'countdown' | 'active' | 'defeated'
+    voidBeastCountdown:0,
     voidBolts:[],
   };
 }
@@ -723,25 +724,34 @@ function gainXP(g,amt){
 function update(g,dt){
   if(g.state!=='playing')return;
   const p=g.p,ps=pStats(g);
-  g.time+=dt;
+  if(g.voidBeastPhase!=='active')g.time+=dt;
 
   // Void Gate: player must return to origin with all keys
   if(g.keysCollected&&g.voidBeastPhase===null&&dist2(p,{x:0,y:0})<3600){
-    g.voidBeastPhase='active';
-    const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
-      hp:1000000,maxHp:1000000,spd:55,dmg:55,sz:56,xp:250,sc:1500,
-      boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:1.2};
-    g.enemies.push(vb);g.bossActive=vb;
-    snd('boss');shake(15);flashScreen('#cc0030',.6);
-    document.getElementById('boss-wrap').style.display='block';
-    document.getElementById('boss-name').textContent='VOID BEAST';
+    g.voidBeastPhase='countdown';
+    g.voidBeastCountdown=5;
+    shake(8);flashScreen('#ffcc00',.3);
+  }
+  // Countdown tick — spawn beast when it reaches zero
+  if(g.voidBeastPhase==='countdown'){
+    g.voidBeastCountdown-=dt;
+    if(g.voidBeastCountdown<=0){
+      g.voidBeastPhase='active';
+      const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
+        hp:1000000,maxHp:1000000,spd:0,dmg:55,sz:56,xp:250,sc:1500,
+        boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:3};
+      g.enemies.push(vb);g.bossActive=vb;
+      snd('boss');shake(15);flashScreen('#cc0030',.6);
+      document.getElementById('boss-wrap').style.display='block';
+      document.getElementById('boss-name').textContent='VOID BEAST';
+    }
   }
   if(g.voidBeastPhase==='defeated'){g.state='win';endScreen(g,true);return}
   // Lose at 10 min if not escaped
   if(g.time>=600){g.state='dead';endScreen(g,false);return}
 
-  // Boss trigger
-  if(g.time>=g.nextBoss&&g.voidBeastPhase!=='active'){
+  // Boss trigger — only while Void Beast fight is not underway
+  if(g.time>=g.nextBoss&&g.voidBeastPhase===null){
     g.nextBoss+=120;
     spawnBoss(g);
   }
@@ -950,11 +960,13 @@ function update(g,dt){
       }
     }
 
-    // Move — only if not already overlapping player (prevents atan2(0,0) drift)
-    const edp=dist2(e,p);
-    if(edp>(e.sz+12)*(e.sz+12)){
-      const ea=angle(e,p);
-      e.x+=Math.cos(ea)*e.spd*dt;e.y+=Math.sin(ea)*e.spd*dt;
+    // Move — Void Beast is stationary; others chase player
+    if(!e.voidBeast){
+      const edp=dist2(e,p);
+      if(edp>(e.sz+12)*(e.sz+12)){
+        const ea=angle(e,p);
+        e.x+=Math.cos(ea)*e.spd*dt;e.y+=Math.sin(ea)*e.spd*dt;
+      }
     }
 
     // Death
@@ -1356,6 +1368,21 @@ function draw(g){
     const fontSize=Math.max(14,Math.min(28,W*.03));
     ctx.globalAlpha=blink;ctx.fillStyle='#ffcc00';ctx.font=`bold ${fontSize}px 'Courier New'`;ctx.textAlign='center';
     ctx.fillText('RETURN TO THE VOID GATE',W/2,H*.18);
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── VOID BEAST COUNTDOWN ──
+  if(g.voidBeastPhase==='countdown'&&g.voidBeastCountdown>0){
+    const cd=Math.ceil(g.voidBeastCountdown);
+    const pulse=.7+Math.sin(now*8)*.3;
+    ctx.globalAlpha=pulse;
+    ctx.fillStyle='#ffcc00';
+    ctx.font=`bold ${Math.round(H*.22)}px 'Courier New'`;
+    ctx.textAlign='center';
+    ctx.fillText(cd,W/2,H/2+H*.08);
+    ctx.font=`bold ${Math.round(H*.035)}px 'Courier New'`;
+    ctx.fillStyle='#ff4040';
+    ctx.fillText('VOID BEAST INCOMING',W/2,H/2-H*.1);
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
