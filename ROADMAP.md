@@ -28,7 +28,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Overcharge** — first shot after standing still for 0.5s deals 2× damage
 
 ### Quality of Life
-- [ ] **Achievements** — local badge system (first boss kill, 10-minute survival, x20 combo, etc.)
+- [x] **Achievements** — local badge system (first boss kill, 5-minute survival, ×20 combo, etc.) (v1.7.0)
 - [ ] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player
 - [ ] **Kill counter by enemy type** — end screen breakdown of what you killed
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen

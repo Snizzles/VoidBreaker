@@ -93,6 +93,10 @@ canvas{display:block}
 /* ── END SCREEN ── */
 #end-stats{margin:16px 0;font-size:clamp(11px,1.6vw,15px);color:#8888cc;text-align:center;line-height:2.1}
 .sh{color:#ffdd22}
+/* ── ACHIEVEMENT TOAST ── */
+#ach-toast{position:fixed;bottom:80px;right:20px;background:linear-gradient(135deg,#1a1040,#2a1870);border:2px solid #8050ee;border-radius:8px;padding:10px 16px;font-size:clamp(11px,1.4vw,13px);color:#fff;z-index:200;pointer-events:none;transition:opacity .6s;max-width:260px;box-shadow:0 0 18px rgba(128,80,238,.5)}
+#ach-toast.fading{opacity:0}
+#ach-toast.hidden{display:none}
 </style>
 </head>
 <body>
@@ -144,6 +148,9 @@ canvas{display:block}
   <div id="lu-sub">GAME PAUSED — click a card to pick your upgrade</div>
   <div class="cards" id="cards"></div>
 </div>
+
+<!-- Achievement Toast -->
+<div id="ach-toast" class="hidden"></div>
 
 <!-- Pause Overlay -->
 <div id="pause-overlay" class="hidden">
@@ -515,6 +522,7 @@ function mkGame(){
     pendingLU:0,
     nextBoss:120,// seconds until next boss
     keys:[],keysCollected:false,
+    bossKills:0,
     voidBeastPhase:null,// null | 'active' | 'defeated'
     voidBolts:[],
   };
@@ -962,6 +970,7 @@ function update(g,dt){
         snd('explode');shake(18);flashScreen('#ff40a0',0.55);
         spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
         if(e.voidBeast)g.voidBeastPhase='defeated';
+        else g.bossKills++;
         document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
         spawnNum(e.x,e.y-60,999,'#ffdd00');
       }else{
@@ -1042,6 +1051,7 @@ function update(g,dt){
   updateShake(dt);
   updateFlash(dt);
   updateHUD(g);
+  checkAchievements(g);
 }
 
 // ═══════════════════════════════════════════
@@ -1455,6 +1465,72 @@ function showLU(g){
 }
 
 // ═══════════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════════
+const ACHIEVEMENTS=[
+  {id:'first_blood', icon:'🩸',name:'First Blood',    desc:'Kill your first enemy'},
+  {id:'slayer',      icon:'💀',name:'Void Slayer',     desc:'Kill 100 enemies in one run'},
+  {id:'annihilator', icon:'☠️', name:'Annihilator',    desc:'Kill 500 enemies in one run'},
+  {id:'boss_first',  icon:'👹',name:'Boss Hunter',     desc:'Kill your first boss'},
+  {id:'boss_three',  icon:'🏆',name:'Boss Slayer',     desc:'Kill 3 bosses in one run'},
+  {id:'key_master',  icon:'🔑',name:'Key Master',      desc:'Collect all 3 keys'},
+  {id:'void_breaker',icon:'✦', name:'Void Breaker',    desc:'Defeat the Void Beast'},
+  {id:'combo_king',  icon:'⚡',name:'Combo King',      desc:'Reach a ×20 kill combo'},
+  {id:'lv20',        icon:'⬆️',name:'Power Rising',    desc:'Reach level 20'},
+  {id:'lv50',        icon:'🌟',name:'Ascended',        desc:'Reach level 50'},
+  {id:'survivor',    icon:'⏱️',name:'Survivor',        desc:'Survive for 5 minutes'},
+  {id:'arsenal',     icon:'🔫',name:'Arsenal',         desc:'Equip 4 weapons simultaneously'},
+  {id:'dmg_100k',    icon:'💥',name:'Obliterator',     desc:'Deal 100,000 total damage'},
+];
+const ACH_CHECK={
+  first_blood: g=>g.kills>=1,
+  slayer:      g=>g.kills>=100,
+  annihilator: g=>g.kills>=500,
+  boss_first:  g=>g.bossKills>=1,
+  boss_three:  g=>g.bossKills>=3,
+  key_master:  g=>g.keysCollected,
+  void_breaker:g=>g.voidBeastPhase==='defeated',
+  combo_king:  g=>g.comboMax>=20,
+  lv20:        g=>g.p.lv>=20,
+  lv50:        g=>g.p.lv>=50,
+  survivor:    g=>g.time>=300,
+  arsenal:     g=>g.p.weapons.length>=4,
+  dmg_100k:    g=>g.totalDmg>=100000,
+};
+
+let unlockedAch=new Set(JSON.parse(localStorage.getItem('vb_ach')||'[]'));
+let achToastTimer=0,achToastQueue=[];
+
+function checkAchievements(g){
+  for(const a of ACHIEVEMENTS){
+    if(!unlockedAch.has(a.id)&&ACH_CHECK[a.id](g)){
+      unlockedAch.add(a.id);
+      localStorage.setItem('vb_ach',JSON.stringify([...unlockedAch]));
+      achToastQueue.push(a);
+    }
+  }
+}
+
+function tickAchToast(dt){
+  if(achToastTimer>0){
+    achToastTimer-=dt;
+    const t=document.getElementById('ach-toast');
+    if(achToastTimer<=0.8)t.classList.add('fading');
+    if(achToastTimer<=0){t.classList.add('hidden');t.classList.remove('fading');}
+    return;
+  }
+  if(achToastQueue.length>0){
+    const a=achToastQueue.shift();
+    const t=document.getElementById('ach-toast');
+    t.innerHTML=`<div style="font-size:10px;letter-spacing:2px;color:#a080ff;margin-bottom:3px">ACHIEVEMENT UNLOCKED</div>`
+      +`<div style="font-weight:bold">${a.icon} ${a.name}</div>`
+      +`<div style="font-size:11px;color:#9090cc;margin-top:2px">${a.desc}</div>`;
+    t.classList.remove('hidden','fading');
+    achToastTimer=3.5;
+  }
+}
+
+// ═══════════════════════════════════════════
 // END SCREEN
 // ═══════════════════════════════════════════
 function endScreen(g,won){
@@ -1472,12 +1548,14 @@ function endScreen(g,won){
   title.style.textShadow=won?'0 0 20px #00ffaa,0 0 50px #0088cc':'0 0 20px #ff0000';
   sub.textContent=won?'The Void Beast is slain — you have escaped the void!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
   stats.style.display='block';
+  const achCount=unlockedAch.size,achTotal=ACHIEVEMENTS.length;
   stats.innerHTML=`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
     Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
     Level: <span class="sh">${g.p.lv}</span><br>
     Score: <span class="sh">${Math.floor(g.score).toLocaleString()}</span><br>
-    Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span>`;
+    Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span><br>
+    Achievements: <span class="sh">🏅 ${achCount}/${achTotal}</span>`;
   document.getElementById('start-btn').style.display='none';
   document.getElementById('retry-btn').style.display='block';
   document.getElementById('continue-btn').style.display=won?'block':'none';
@@ -1495,6 +1573,7 @@ function loop(ts){
   const dt=Math.min(.05,(ts-lastT)/1000);lastT=ts;
   if(G)update(G,dt);
   draw(G);
+  tickAchToast(dt);
   requestAnimationFrame(loop);
 }
 

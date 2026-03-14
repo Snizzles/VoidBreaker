@@ -57,7 +57,29 @@ Each weapon has 8 upgrade levels unlocked through the level-up system.
 
 Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singularity**.
 
-The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has 2500 HP and fires crimson bolts at the player.
+The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has massive HP and fires spreads of crimson bolts. Defeat it to win — or keep playing after victory for endless mode.
+
+---
+
+## Achievements
+
+13 achievements tracked in your browser across all runs. Unlock notifications appear in-game when earned; your total is shown on the end screen.
+
+| Achievement | How to unlock |
+|-------------|---------------|
+| 🩸 First Blood | Kill your first enemy |
+| 💀 Void Slayer | Kill 100 enemies in one run |
+| ☠️ Annihilator | Kill 500 enemies in one run |
+| 👹 Boss Hunter | Kill your first boss |
+| 🏆 Boss Slayer | Kill 3 bosses in one run |
+| 🔑 Key Master | Collect all 3 keys |
+| ✦ Void Breaker | Defeat the Void Beast |
+| ⚡ Combo King | Reach a ×20 kill combo |
+| ⬆️ Power Rising | Reach level 20 |
+| 🌟 Ascended | Reach level 50 |
+| ⏱️ Survivor | Survive for 5 minutes |
+| 🔫 Arsenal | Equip 4 weapons simultaneously |
+| 💥 Obliterator | Deal 100,000 total damage |
 
 ---
 
@@ -87,6 +109,7 @@ The **Void Beast** is the final boss — it spawns at the Void Gate when you ret
 
 | Version | Notes |
 |---------|-------|
+| v1.7.0 | Achievements (13 badges, localStorage-persistent, in-game toast notifications); Void Beast massively buffed; Continue Playing button on win screen |
 | v1.6.0 | Void Gate + Void Beast final boss; ESC pause menu; phantom teleport distance fix |
 | v1.5.0 | Key difficulty rebalance: keys spawn 3× further out (1800-2800px); guardian enemies (elite Brute + Crawler/Swarm cluster) spawn to defend each key on approach |
 | v1.4.0 | Performance overhaul (no shadowBlur, off-screen culling, enemy cap); key collection win condition; off-screen key indicators; auto-skip level-up when maxed; heal always offered |
