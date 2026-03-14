@@ -65,6 +65,7 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 - **Synergize passives.** Chrono Chip + Chain Bolt or Power Core + Nova Bomb compound hard.
 - **Kill streaks matter.** Combos multiply score — keep the chain going for bonus points.
 - **Follow the arrows.** Off-screen key indicators point you toward uncollected keys with distance readouts.
+- **Prepare for guardians.** Each key is defended by a Brute and a cluster of enemies that spawn when you get close.
 - Collect all 3 keys before 10:00 to win.
 
 ---
@@ -82,6 +83,7 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 
 | Version | Notes |
 |---------|-------|
+| v1.5.0 | Key difficulty rebalance: keys spawn 3× further out (1800-2800px); guardian enemies (elite Brute + Crawler/Swarm cluster) spawn to defend each key on approach |
 | v1.4.0 | Performance overhaul (no shadowBlur, off-screen culling, enemy cap); key collection win condition; off-screen key indicators; auto-skip level-up when maxed; heal always offered |
 | v1.3.0 | Performance pass; reduce round to 10 minutes |
 | v1.2.1 | Shadow Orbs distinct gold color |

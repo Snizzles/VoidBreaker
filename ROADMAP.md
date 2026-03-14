@@ -12,6 +12,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Difficulty modes** — Easy / Normal / Void (harder). Void mode scales enemies more aggressively and disables hearts
 - [ ] **Hard-mode unlocks** — clear Normal to unlock Void difficulty
 - [x] **Key collection win condition** — collect 3 scattered keys before 10:00 to win; replaces pure survival timer (v1.4.0)
+- [x] **Key difficulty rebalance** — keys spawn further out (1800-2800px) and are guarded by enemy clusters that spawn on approach (v1.5.0)
 - [ ] **Run timer display improvement** — show a ghost timer comparing current run to personal best
 
 ### Weapons

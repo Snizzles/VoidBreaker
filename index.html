@@ -120,7 +120,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.4.0</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.5.0</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b> before time runs out to <b style="color:#00ffdd">break the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -599,6 +599,29 @@ function spawnBoss(g){
   document.getElementById('boss-name').textContent=bt.name;
 }
 
+function spawnKeyGuards(g,k){
+  const scale=Math.min(1+g.time/100,7);
+  const dmgScale=Math.min(1+g.time/160,4);
+  // Elite Brute at key position (3× time scaling for HP)
+  const brute={...ETYPES[2],x:k.x,y:k.y};
+  const bScale=Math.min(1+g.time/33,12);
+  brute.maxHp=brute.hp*bScale;brute.hp=brute.maxHp;
+  brute.dmg=brute.dmg*dmgScale;brute.flash=0;brute.tpTimer=rnd(3,7);brute.leapTimer=rnd(1.5,3);
+  g.enemies.push(brute);
+  // 6 mixed Crawlers/Swarm in a ring around the key
+  for(let i=0;i<6;i++){
+    const a=(i/6)*PI2;
+    const rd=rnd(40,80);
+    const tid=Math.random()<.5?0:4;
+    const base={...ETYPES[tid]};
+    const e={...base,x:k.x+Math.cos(a)*rd,y:k.y+Math.sin(a)*rd,maxHp:base.hp*scale,hp:base.hp*scale,dmg:base.dmg*dmgScale,flash:0,tpTimer:rnd(3,7),leapTimer:rnd(1.5,3)};
+    g.enemies.push(e);
+  }
+  snd('boss');shake(5);flashScreen('#ff4020',.3);
+  spawnNum(k.x,k.y-20,0,'#ff4020');
+  if(nums.length>0){const n=nums[nums.length-1];n.txt='GUARDIANS!';n.sz=20;n.life=1.2;n.ml=1.2}
+}
+
 // ═══════════════════════════════════════════
 // CHAIN BOLT HELPER
 // ═══════════════════════════════════════════
@@ -927,6 +950,7 @@ function update(g,dt){
   for(const k of g.keys){
     if(k.collected)continue;
     k.pulse+=dt;
+    if(!k.guardsSpawned&&dist(p,k)<250){k.guardsSpawned=true;spawnKeyGuards(g,k)}
     if(dist(p,k)<30){
       k.collected=true;
       snd('key');shake(8);flashScreen('#00ffff',.45);
@@ -1369,12 +1393,12 @@ function startGame(){
   hintTimers.push(setTimeout(()=>hint.classList.add('fade'),5000));
   hintTimers.push(setTimeout(()=>hint.style.display='none',6200));
   G=mkGame();
-  // Spawn 3 keys at random angles, spread ~120° apart, distance 600-1000 from origin
+  // Spawn 3 keys at random angles, spread ~120° apart, distance 1800-2800 from origin
   const baseAngle=Math.random()*PI2;
   for(let ki=0;ki<3;ki++){
     const ka=baseAngle+(ki/3)*PI2+rnd(-.3,.3);
-    const kd=rnd(600,1000);
-    G.keys.push({x:Math.cos(ka)*kd,y:Math.sin(ka)*kd,collected:false,pulse:0});
+    const kd=rnd(1800,2800);
+    G.keys.push({x:Math.cos(ka)*kd,y:Math.sin(ka)*kd,collected:false,pulse:0,guardsSpawned:false});
   }
   // Start with the player's chosen weapon
   G.p.weapons.push({id:selectedWeapon,lv:1,timer:0,angle:0});
