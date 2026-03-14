@@ -120,7 +120,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.1.0</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.2.0</div>
   <div class="overlay-sub" id="ov-sub">
     Move to dodge. Weapons fire <b style="color:#c080ff">automatically</b>.<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -680,7 +680,7 @@ function update(g,dt){
       if(w.timer<=0){
         w.timer=ws.cd;
         g.bombs.push({x:p.x+rnd(-18,18),y:p.y+rnd(-18,18),fuse:ws.fuse,mf:ws.fuse,
-          dmg:ws.dmg*ps.dmgMult*2,rad:ws.rad,done:false});
+          dmg:ws.dmg*ps.dmgMult,rad:ws.rad,done:false});
       }
     }else if(w.id===3){// Chain Bolt
       w.timer-=dt/ps.cdMult;
@@ -688,7 +688,7 @@ function update(g,dt){
         w.timer=ws.cd;
         let near=null,nd=Infinity;
         for(const e of g.enemies){const d=dist(p,e);if(d<nd){nd=d;near=e}}
-        if(near)chainBolt(g,p.x,p.y,near,ws.bounces,ws.rng,ws.dmg*ps.dmgMult,[near]);
+        if(near&&nd<ws.rng*2)chainBolt(g,p.x,p.y,near,ws.bounces,ws.rng,ws.dmg*ps.dmgMult,[near]);
       }
     }else if(w.id===4){// Shadow Orbs - angle only
       w.angle=(w.angle||0)+ws.rotSpd*dt;
