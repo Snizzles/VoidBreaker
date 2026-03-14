@@ -135,6 +135,7 @@ canvas{display:block}
   <div id="end-stats" style="display:none"></div>
   <button class="btn" id="start-btn" onclick="startGame()">BEGIN MISSION</button>
   <button class="btn" id="retry-btn" style="display:none" onclick="startGame()">TRY AGAIN</button>
+  <button class="btn" id="continue-btn" style="display:none" onclick="continueGame()">CONTINUE PLAYING</button>
 </div>
 
 <!-- Level Up Overlay -->
@@ -720,8 +721,8 @@ function update(g,dt){
   if(g.keysCollected&&g.voidBeastPhase===null&&dist2(p,{x:0,y:0})<3600){
     g.voidBeastPhase='active';
     const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
-      hp:2500,maxHp:2500,spd:40,dmg:35,sz:48,xp:250,sc:1500,
-      boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:2};
+      hp:40000,maxHp:40000,spd:55,dmg:55,sz:56,xp:250,sc:1500,
+      boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:1.2};
     g.enemies.push(vb);g.bossActive=vb;
     snd('boss');shake(15);flashScreen('#cc0030',.6);
     document.getElementById('boss-wrap').style.display='block';
@@ -930,9 +931,13 @@ function update(g,dt){
     if(e.voidBeast){
       e.vbTimer-=dt;
       if(e.vbTimer<=0){
-        e.vbTimer=rnd(2,3);
-        const ba=angle(e,p),bs=180;
-        g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(ba)*bs,vy:Math.sin(ba)*bs,life:3,dmg:20,sz:8});
+        e.vbTimer=rnd(1,1.8);
+        const ba=angle(e,p),bs=200;
+        // Fire 3-bolt spread
+        for(const spread of [-0.28,0,0.28]){
+          const a=ba+spread;
+          g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:30,sz:9});
+        }
         snd('shoot');
       }
     }
@@ -1475,6 +1480,7 @@ function endScreen(g,won){
     Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span>`;
   document.getElementById('start-btn').style.display='none';
   document.getElementById('retry-btn').style.display='block';
+  document.getElementById('continue-btn').style.display=won?'block':'none';
   // Show weapon picker so player can change starting weapon before retrying
   document.getElementById('weapon-pick-section').style.display='block';
   buildWeaponPicker();
@@ -1499,6 +1505,13 @@ function resumeGame(){
   if(!G||G.state!=='paused')return;
   G.state='playing';
   document.getElementById('pause-overlay').classList.add('hidden');
+  jZone.style.pointerEvents='';
+}
+
+function continueGame(){
+  if(!G)return;
+  G.state='playing';
+  document.getElementById('overlay').classList.add('hidden');
   jZone.style.pointerEvents='';
 }
 
@@ -1530,6 +1543,7 @@ function startGame(){
   document.getElementById('pause-overlay').classList.add('hidden');
   document.getElementById('end-stats').style.display='none';
   document.getElementById('start-btn').style.display='block';
+  document.getElementById('continue-btn').style.display='none';
   document.getElementById('retry-btn').style.display='none';
   document.getElementById('boss-wrap').style.display='none';
   document.getElementById('hud').style.display='block';
