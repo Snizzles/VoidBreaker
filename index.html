@@ -22,6 +22,7 @@ canvas{display:block}
 /* ── LEVEL UP ── */
 #lu-overlay{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,16,0.93);z-index:90}
 #lu-overlay.hidden{display:none}
+#pause-overlay.hidden{display:none}
 #lu-title{font-size:clamp(18px,3.5vw,42px);color:#ffdd22;text-shadow:0 0 16px #ffaa00;margin-bottom:6px;letter-spacing:3px}
 #lu-sub{font-size:clamp(10px,1.5vw,14px);color:#7070aa;margin-bottom:22px;letter-spacing:1px}
 .cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:0 18px;max-width:920px}
@@ -109,7 +110,7 @@ canvas{display:block}
     </div>
   </div>
 </div>
-<div id="hint">Collect all 3 🔑 keys before 10:00! Kill enemies → collect ◆ gems → level up → pick powers!</div>
+<div id="hint">Collect 3 🔑 keys → return to the Void Gate → defeat the Void Beast to escape!</div>
 <div id="hp-wrap"><div id="hp-fill" style="width:100%"></div></div>
 <div id="boss-wrap">
   <div id="boss-name">VOID TITAN</div>
@@ -120,11 +121,11 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.5.0</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.6.0</div>
   <div class="overlay-sub" id="ov-sub">
-    Collect all 3 <b style="color:#00ffff">🔑 keys</b> before time runs out to <b style="color:#00ffdd">break the void</b>!<br>
+    Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
-    <span style="color:#606090">WASD / Arrows &nbsp;|&nbsp; Touch joystick on mobile</span>
+    <span style="color:#606090">WASD / Arrows &nbsp;|&nbsp; Touch joystick on mobile &nbsp;|&nbsp; ESC to pause</span>
   </div>
   <div id="weapon-pick-section">
     <div id="weapon-pick-label">Choose your starting weapon</div>
@@ -140,6 +141,15 @@ canvas{display:block}
   <div id="lu-title">⚡ LEVEL UP ⚡</div>
   <div id="lu-sub">GAME PAUSED — click a card to pick your upgrade</div>
   <div class="cards" id="cards"></div>
+</div>
+
+<!-- Pause Overlay -->
+<div id="pause-overlay" class="hidden" style="position:fixed;inset:0;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;background:rgba(0,0,18,0.88);z-index:95">
+  <div style="font-size:clamp(30px,6vw,68px);font-weight:bold;color:#b070ff;
+    text-shadow:0 0 20px #a060ff,0 0 50px #6030cc;letter-spacing:5px">PAUSED</div>
+  <div style="font-size:clamp(11px,1.8vw,17px);color:#7070b0;margin-top:14px">Press ESC to resume</div>
+  <button class="btn" id="resume-btn" style="margin-top:24px" onclick="resumeGame()">RESUME</button>
 </div>
 
 <!-- Joystick -->
@@ -247,6 +257,10 @@ const keys={};
 window.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+  if(e.code==='Escape'&&G){
+    if(G.state==='playing'){G.state='paused';document.getElementById('pause-overlay').classList.remove('hidden');jZone.style.pointerEvents='none'}
+    else if(G.state==='paused'){resumeGame()}
+  }
 });
 window.addEventListener('keyup',e=>{keys[e.code]=false});
 
@@ -484,7 +498,7 @@ let loopId=null;
 
 function mkGame(){
   return{
-    state:'playing',// playing|levelup|dead|win
+    state:'playing',// playing|paused|levelup|dead|win
     time:0,kills:0,score:0,totalDmg:0,
     p:{// player
       x:0,y:0,hp:100,maxHp:100,speed:135,
@@ -500,6 +514,8 @@ function mkGame(){
     pendingLU:0,
     nextBoss:120,// seconds until next boss
     keys:[],keysCollected:false,
+    voidBeastPhase:null,// null | 'active' | 'defeated'
+    voidBolts:[],
   };
 }
 
@@ -700,13 +716,23 @@ function update(g,dt){
   const p=g.p,ps=pStats(g);
   g.time+=dt;
 
-  // Win: all 3 keys collected
-  if(g.keysCollected){g.state='win';endScreen(g,true);return}
-  // Lose at 10 min if keys not collected
+  // Void Gate: player must return to origin with all keys
+  if(g.keysCollected&&g.voidBeastPhase===null&&dist2(p,{x:0,y:0})<3600){
+    g.voidBeastPhase='active';
+    const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
+      hp:2500,maxHp:2500,spd:40,dmg:35,sz:48,xp:250,sc:1500,
+      boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:2};
+    g.enemies.push(vb);g.bossActive=vb;
+    snd('boss');shake(15);flashScreen('#cc0030',.6);
+    document.getElementById('boss-wrap').style.display='block';
+    document.getElementById('boss-name').textContent='VOID BEAST';
+  }
+  if(g.voidBeastPhase==='defeated'){g.state='win';endScreen(g,true);return}
+  // Lose at 10 min if not escaped
   if(g.time>=600){g.state='dead';endScreen(g,false);return}
 
   // Boss trigger
-  if(g.time>=g.nextBoss){
+  if(g.time>=g.nextBoss&&g.voidBeastPhase!=='active'){
     g.nextBoss+=120;
     spawnBoss(g);
   }
@@ -847,6 +873,23 @@ function update(g,dt){
   // ── BOLTS ──
   for(let i=g.bolts.length-1;i>=0;i--){g.bolts[i].life-=dt;if(g.bolts[i].life<=0)g.bolts.splice(i,1)}
 
+  // ── VOID BOLTS ──
+  for(let i=g.voidBolts.length-1;i>=0;i--){
+    const vb=g.voidBolts[i];
+    vb.x+=vb.vx*dt;vb.y+=vb.vy*dt;vb.life-=dt;
+    if(vb.life<=0){g.voidBolts.splice(i,1);continue}
+    // Trail particles
+    if(Math.random()<.3)spawnParts(vb.x,vb.y,1,'#cc0030',30,.3,3);
+    // Player collision
+    if(p.iframes<=0&&dist2(vb,p)<(vb.sz+13)*(vb.sz+13)){
+      const dmg=Math.max(1,vb.dmg-ps.armor);
+      p.hp-=dmg;p.iframes=.55;shake(5);snd('hurt');
+      spawnParts(p.x,p.y,9,'#ff4060',110,.4,4);
+      g.voidBolts.splice(i,1);
+      if(p.hp<=0){p.hp=0;g.state='dead';snd('death');endScreen(g,false);return}
+    }
+  }
+
   // ── ENEMIES ──
   for(let i=g.enemies.length-1;i>=0;i--){
     const e=g.enemies[i];
@@ -874,7 +917,7 @@ function update(g,dt){
       e.tpTimer-=dt;
       if(e.tpTimer<=0){
         e.tpTimer=rnd(3,7);
-        const a=Math.random()*PI2,d=rnd(60,180);
+        const a=Math.random()*PI2,d=rnd(140,280);
         e.x=p.x+Math.cos(a)*d;e.y=p.y+Math.sin(a)*d;
         spawnParts(e.x,e.y,12,e.col,110,.4,5);
       }
@@ -882,6 +925,17 @@ function update(g,dt){
 
     // Boss rotation
     if(e.boss)e.rot=(e.rot||0)+2*dt;
+
+    // Void Beast ranged attack
+    if(e.voidBeast){
+      e.vbTimer-=dt;
+      if(e.vbTimer<=0){
+        e.vbTimer=rnd(2,3);
+        const ba=angle(e,p),bs=180;
+        g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(ba)*bs,vy:Math.sin(ba)*bs,life:3,dmg:20,sz:8});
+        snd('shoot');
+      }
+    }
 
     // Move — only if not already overlapping player (prevents atan2(0,0) drift)
     const edp=dist2(e,p);
@@ -902,6 +956,7 @@ function update(g,dt){
       if(e.boss){
         snd('explode');shake(18);flashScreen('#ff40a0',0.55);
         spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
+        if(e.voidBeast)g.voidBeastPhase='defeated';
         document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
         spawnNum(e.x,e.y-60,999,'#ffdd00');
       }else{
@@ -1118,6 +1173,16 @@ function draw(g){
     ctx.beginPath();ctx.arc(pr.x,pr.y,pr.sz,0,PI2);ctx.fill();
   }
 
+  // ── VOID BOLTS ──
+  for(const vb of g.voidBolts){
+    ctx.fillStyle='rgba(204,0,48,.25)';
+    ctx.beginPath();ctx.arc(vb.x,vb.y,vb.sz*2.5,0,PI2);ctx.fill();
+    ctx.fillStyle='#cc0030';
+    ctx.beginPath();ctx.arc(vb.x,vb.y,vb.sz,0,PI2);ctx.fill();
+    ctx.fillStyle='#ff6080';
+    ctx.beginPath();ctx.arc(vb.x,vb.y,vb.sz*.4,0,PI2);ctx.fill();
+  }
+
   // ── ENEMIES (with off-screen culling) ──
   const cullL=camX-W/2-60,cullR=camX+W/2+60,cullT=camY-H/2-60,cullB=camY+H/2+60;
   for(const e of g.enemies){
@@ -1195,6 +1260,32 @@ function draw(g){
     ctx.restore();
   }
 
+  // ── VOID GATE (world origin) ──
+  if(g.voidBeastPhase!=='active'){
+    const gateX=0,gateY=0;
+    if(g.keysCollected&&g.voidBeastPhase===null){
+      // Active: bright glowing portal
+      const gr=ctx.createRadialGradient(gateX,gateY,0,gateX,gateY,50);
+      gr.addColorStop(0,'rgba(255,204,0,.35)');gr.addColorStop(.6,'rgba(160,96,255,.2)');gr.addColorStop(1,'rgba(160,96,255,0)');
+      ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gateX,gateY,50,0,PI2);ctx.fill();
+      // Gold ring
+      ctx.strokeStyle='#ffcc00';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(gateX,gateY,30+Math.sin(now*3)*4,0,PI2);ctx.stroke();
+      // Purple ring
+      ctx.strokeStyle='#a060ff';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(gateX,gateY,40+Math.sin(now*2.5+1)*5,0,PI2);ctx.stroke();
+      // Sparkle particles
+      if(Math.random()<.15)spawnParts(gateX+rnd(-25,25),gateY+rnd(-25,25),1,'#ffcc00',40,.5,3);
+    }else if(g.voidBeastPhase===null){
+      // Inactive: dim purple ring, subtle pulse
+      const pulse=.3+Math.sin(now*2)*.15;
+      ctx.strokeStyle=`rgba(160,96,255,${pulse})`;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(gateX,gateY,28+Math.sin(now*1.5)*3,0,PI2);ctx.stroke();
+      ctx.strokeStyle=`rgba(160,96,255,${pulse*.5})`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(gateX,gateY,38+Math.sin(now+1)*4,0,PI2);ctx.stroke();
+    }
+  }
+
   // ── PARTICLES (world space — already in translated context) ──
   drawParts();
   drawNums();
@@ -1225,6 +1316,31 @@ function draw(g){
     const d=Math.floor(dist(p,k));
     ctx.globalAlpha=.7;ctx.fillStyle='#00ffff';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
     ctx.fillText(d+'m',edgeX,edgeY+18);
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── VOID GATE OFF-SCREEN INDICATOR ──
+  if(g.keysCollected&&g.voidBeastPhase===null){
+    const gsx=0-cx,gsy=0-cy;
+    if(gsx<20||gsx>W-20||gsy<20||gsy>H-20){
+      const gang=Math.atan2(gsy-H/2,gsx-W/2);
+      const margin=40;
+      const geX=clamp(W/2+Math.cos(gang)*(W/2-margin),margin,W-margin);
+      const geY=clamp(H/2+Math.sin(gang)*(H/2-margin),margin,H-margin);
+      ctx.save();ctx.translate(geX,geY);ctx.rotate(gang);
+      ctx.fillStyle='#ffcc00';ctx.globalAlpha=.9;
+      ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-7,-8);ctx.lineTo(-7,8);ctx.closePath();ctx.fill();
+      ctx.restore();
+      const gd=Math.floor(dist(p,{x:0,y:0}));
+      ctx.globalAlpha=.75;ctx.fillStyle='#ffcc00';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+      ctx.fillText(gd+'m',geX,geY+20);
+      ctx.globalAlpha=1;ctx.textAlign='left';
+    }
+    // "RETURN TO THE VOID GATE" blinking message
+    const blink=Math.sin(now*4)>.1?1:.3;
+    const fontSize=Math.max(14,Math.min(28,W*.03));
+    ctx.globalAlpha=blink;ctx.fillStyle='#ffcc00';ctx.font=`bold ${fontSize}px 'Courier New'`;ctx.textAlign='center';
+    ctx.fillText('RETURN TO THE VOID GATE',W/2,H*.18);
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
@@ -1346,10 +1462,10 @@ function endScreen(g,won){
   const ts=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const keysGot=g.keys.filter(k=>k.collected).length;
   const timedOut=!won&&g.time>=600;
-  title.textContent=won?'✦ VOID BROKEN ✦':timedOut?'✗ CONSUMED BY THE VOID ✗':'✗ DEFEATED ✗';
+  title.textContent=won?'✦ VOID ESCAPED ✦':timedOut?'✗ CONSUMED BY THE VOID ✗':'✗ DEFEATED ✗';
   title.style.color=won?'#00ffdd':'#ff4060';
   title.style.textShadow=won?'0 0 20px #00ffaa,0 0 50px #0088cc':'0 0 20px #ff0000';
-  sub.textContent=won?'All keys collected — the void is shattered!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
+  sub.textContent=won?'The Void Beast is slain — you have escaped the void!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
   stats.style.display='block';
   stats.innerHTML=`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
     Survived: <span class="sh">${ts}</span><br>
@@ -1379,6 +1495,13 @@ function loop(ts){
 // ═══════════════════════════════════════════
 // START
 // ═══════════════════════════════════════════
+function resumeGame(){
+  if(!G||G.state!=='paused')return;
+  G.state='playing';
+  document.getElementById('pause-overlay').classList.add('hidden');
+  jZone.style.pointerEvents='';
+}
+
 function startGame(){
   try{ac()}catch(e){}// unlock audio
   // Reset global state
@@ -1404,6 +1527,7 @@ function startGame(){
   G.p.weapons.push({id:selectedWeapon,lv:1,timer:0,angle:0});
   document.getElementById('overlay').classList.add('hidden');
   document.getElementById('lu-overlay').classList.add('hidden');
+  document.getElementById('pause-overlay').classList.add('hidden');
   document.getElementById('end-stats').style.display='none';
   document.getElementById('start-btn').style.display='block';
   document.getElementById('retry-btn').style.display='none';
