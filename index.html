@@ -22,6 +22,7 @@ canvas{display:block}
 /* ── LEVEL UP ── */
 #lu-overlay{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,16,0.93);z-index:90}
 #lu-overlay.hidden{display:none}
+#pause-overlay{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,18,0.88);z-index:95}
 #pause-overlay.hidden{display:none}
 #lu-title{font-size:clamp(18px,3.5vw,42px);color:#ffdd22;text-shadow:0 0 16px #ffaa00;margin-bottom:6px;letter-spacing:3px}
 #lu-sub{font-size:clamp(10px,1.5vw,14px);color:#7070aa;margin-bottom:22px;letter-spacing:1px}
@@ -144,8 +145,7 @@ canvas{display:block}
 </div>
 
 <!-- Pause Overlay -->
-<div id="pause-overlay" class="hidden" style="position:fixed;inset:0;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;background:rgba(0,0,18,0.88);z-index:95">
+<div id="pause-overlay" class="hidden">
   <div style="font-size:clamp(30px,6vw,68px);font-weight:bold;color:#b070ff;
     text-shadow:0 0 20px #a060ff,0 0 50px #6030cc;letter-spacing:5px">PAUSED</div>
   <div style="font-size:clamp(11px,1.8vw,17px);color:#7070b0;margin-top:14px">Press ESC to resume</div>
