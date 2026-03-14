@@ -11,6 +11,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Volume control** — mute toggle and basic slider in the overlay
 - [ ] **Difficulty modes** — Easy / Normal / Void (harder). Void mode scales enemies more aggressively and disables hearts
 - [ ] **Hard-mode unlocks** — clear Normal to unlock Void difficulty
+- [x] **Key collection win condition** — collect 3 scattered keys before 10:00 to win; replaces pure survival timer (v1.4.0)
 - [ ] **Run timer display improvement** — show a ghost timer comparing current run to personal best
 
 ### Weapons
@@ -28,7 +29,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen
 - [ ] **Gem vacuum on boss kill** — auto-collect all on-screen gems when a boss dies
 - [ ] **Minimap** — small corner display showing enemy density around the player
-- [ ] **Off-screen boss/elite indicator** — arrow or icon at screen edge pointing toward approaching bosses
+- [x] **Off-screen key indicators** — arrow + distance at screen edge pointing toward uncollected keys (v1.4.0)
 - [ ] **Pending level-up counter** — show queued level-ups (e.g. "2 pending") on the XP bar when multiple are stacked
 - [ ] **Weapon DPS display** — show estimated DPS next to each weapon in the weapons HUD
 
@@ -58,7 +59,7 @@ This document tracks planned features, improvements, and long-term design goals.
 ## Long-Term (v3.x+)
 
 ### Game Modes
-- [ ] **Endless mode** — no 20-minute win condition; pure score chase with a global leaderboard
+- [ ] **Endless mode** — no key/timer win condition; pure score chase with a global leaderboard
 - [ ] **Challenge runs** — pre-set loadouts with specific win conditions ("Survive 5 minutes with only Shadow Orbs and no passives")
 - [ ] **Daily run** — seeded random loadout that resets every 24h, shared score board
 
@@ -86,7 +87,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - Star background uses `%` wrap math that produces minor visual stutter at large camera offsets — switch to true parallax tile wrapping
 - No frame-rate independence guard beyond `dt` cap of 50ms — very low FPS devices may still exhibit physics jitter
 - Enemy eye always faces right — should rotate toward the player's position for better visual feedback
-- No off-screen enemy indicators — large enemies or bosses approaching from outside the viewport give no warning
+- ~~No off-screen enemy indicators~~ — key indicators added in v1.4.0; boss/elite indicators still TODO
 - No visual feedback for armor damage reduction — blocked damage should flash a shield icon or show reduced numbers in a distinct color
 
 ---
