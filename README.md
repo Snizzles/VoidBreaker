@@ -15,7 +15,7 @@ A browser-based auto-shooter in the spirit of *Vampire Survivors* — survive en
 
 Weapons fire **automatically** — your only job is to move.
 
-**Loop:** Kill enemies → collect ◆ gems → fill XP bar → level up → pick an upgrade → repeat for 20 minutes.
+**Goal:** Collect all 3 🔑 keys scattered across the map before 10:00 to break the void. Kill enemies → collect ◆ gems → fill XP bar → level up → pick upgrades to survive long enough.
 
 ---
 
@@ -64,7 +64,8 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 - **Prioritize Bosses.** They drop large XP gem clusters worth many level-ups.
 - **Synergize passives.** Chrono Chip + Chain Bolt or Power Core + Nova Bomb compound hard.
 - **Kill streaks matter.** Combos multiply score — keep the chain going for bonus points.
-- Survive 20 minutes to win.
+- **Follow the arrows.** Off-screen key indicators point you toward uncollected keys with distance readouts.
+- Collect all 3 keys before 10:00 to win.
 
 ---
 
@@ -81,6 +82,9 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 
 | Version | Notes |
 |---------|-------|
+| v1.4.0 | Performance overhaul (no shadowBlur, off-screen culling, enemy cap); key collection win condition; off-screen key indicators; auto-skip level-up when maxed; heal always offered |
+| v1.3.0 | Performance pass; reduce round to 10 minutes |
+| v1.2.1 | Shadow Orbs distinct gold color |
 | v1.2.0 | Fix Chain Bolt off-screen kills; fix Nova Bomb damage multiplier |
 | v1.1.0 | Starting weapon selection; version display |
 | v1.0.0 | Initial release |
