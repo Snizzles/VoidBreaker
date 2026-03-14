@@ -120,7 +120,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.2.1</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.3.0</div>
   <div class="overlay-sub" id="ov-sub">
     Move to dodge. Weapons fire <b style="color:#c080ff">automatically</b>.<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -287,13 +287,15 @@ function inputDir(){
 // PARTICLES
 // ═══════════════════════════════════════════
 let parts=[];
+const MAX_PARTS=350;
 function spawnParts(x,y,n,col,spd=120,life=.5,sz=3){
-  for(let i=0;i<n;i++){
+  for(let i=0;i<n&&parts.length<MAX_PARTS;i++){
     const a=Math.random()*PI2,s=rnd(spd*.3,spd);
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,col,life,ml:life,sz:rnd(sz*.5,sz)});
   }
 }
 function spawnNum(x,y,dmg,col){
+  if(parts.length>=MAX_PARTS)return;
   parts.push({x,y,vx:rnd(-20,20),vy:-75,col:col||( dmg>60?'#ffff00':'#ff9922'),
     life:.75,ml:.75,sz:dmg>60?16:12,txt:Math.round(dmg).toString()});
 }
@@ -342,7 +344,7 @@ function drawFlash(){
 // BACKGROUND STARS
 // ═══════════════════════════════════════════
 const STARS=[];
-for(let i=0;i<220;i++)STARS.push({x:rnd(-4000,4000),y:rnd(-4000,4000),sz:rnd(.4,2.4),spd:rnd(.08,.45)});
+for(let i=0;i<110;i++)STARS.push({x:rnd(-4000,4000),y:rnd(-4000,4000),sz:rnd(.4,2.4),spd:rnd(.08,.45)});
 
 function drawBg(){
   const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H));
@@ -637,8 +639,8 @@ function update(g,dt){
   const p=g.p,ps=pStats(g);
   g.time+=dt;
 
-  // Win at 20 min
-  if(g.time>=1200){g.state='win';endScreen(g,true);return}
+  // Win at 10 min
+  if(g.time>=600){g.state='win';endScreen(g,true);return}
 
   // Boss trigger
   if(g.time>=g.nextBoss){
@@ -706,10 +708,13 @@ function update(g,dt){
       const la=(lw.angle||0)+li*Math.PI;
       for(const e of g.enemies){
         const dx=e.x-p.x,dy=e.y-p.y;
-        const ea=Math.atan2(dy,dx),d=Math.sqrt(dx*dx+dy*dy);
+        const d2=dx*dx+dy*dy;
+        if(d2>ws.len*ws.len)continue;// skip atan2 for out-of-range enemies
+        const d=Math.sqrt(d2);
+        const ea=Math.atan2(dy,dx);
         let diff=Math.abs(ea-la)%PI2;if(diff>Math.PI)diff=PI2-diff;
         const thresh=Math.atan2(ws.wid*.5,Math.max(d,1))+.18;
-        if(d<ws.len&&diff<thresh){
+        if(diff<thresh){
           const dmg=dps*dt;e.hp-=dmg;e.flash=.04;G.totalDmg+=dmg;
           if(Math.random()<.08)spawnParts(e.x,e.y,1,'#00ccff',40,.2,2);
         }
@@ -726,7 +731,7 @@ function update(g,dt){
       const a=(ow.angle||0)+(i/ws.cnt)*PI2;
       const ox=p.x+Math.cos(a)*ws.orbitR,oy=p.y+Math.sin(a)*ws.orbitR;
       for(const e of g.enemies){
-        if(dist({x:ox,y:oy},e)<ws.sz+e.sz){
+        if(dist2({x:ox,y:oy},e)<(ws.sz+e.sz)*(ws.sz+e.sz)){
           const dmg=dps*dt;e.hp-=dmg;e.flash=.05;G.totalDmg+=dmg;
         }
       }
@@ -738,9 +743,11 @@ function update(g,dt){
   if(gv){
     const ws=WDEFS[5].stats(gv.lv);
     const dps=ws.dps*ps.dmgMult;
+    const rad2=ws.rad*ws.rad;
     for(const e of g.enemies){
-      const d=dist(p,e);
-      if(d<ws.rad){
+      const d2=dist2(p,e);
+      if(d2<rad2){
+        const d=Math.sqrt(d2);
         const a=angle(e,p),force=ws.pull*(1-d/ws.rad);
         e.x+=Math.cos(a)*force*dt;e.y+=Math.sin(a)*force*dt;
         const dmg=dps*dt;e.hp-=dmg;G.totalDmg+=dmg;
@@ -930,17 +937,17 @@ function draw(g){
     }else{
       const sz=gem.sz*1.9*pulse;// much bigger + pulse
       // Outer glow ring
-      ctx.shadowColor=gem.col;ctx.shadowBlur=22+14*pulse;
+      ctx.shadowColor=gem.col;ctx.shadowBlur=8;
       ctx.fillStyle=gem.col+'55';
       ctx.beginPath();ctx.arc(gem.x,gem.y,sz*1.4,0,PI2);ctx.fill();
       // Gem body (spinning diamond)
-      ctx.fillStyle=gem.col;ctx.shadowBlur=18+10*pulse;
+      ctx.fillStyle=gem.col;ctx.shadowBlur=10;
       ctx.save();ctx.translate(gem.x,gem.y);ctx.rotate(now*2+gem.x*.01);
       ctx.beginPath();
       ctx.moveTo(0,-sz);ctx.lineTo(sz*.6,0);ctx.lineTo(0,sz);ctx.lineTo(-sz*.6,0);
       ctx.closePath();ctx.fill();
       // Bright core
-      ctx.fillStyle='#ffffff';ctx.shadowBlur=10;
+      ctx.fillStyle='#ffffff';ctx.shadowBlur=6;
       ctx.beginPath();ctx.arc(0,0,sz*.3,0,PI2);ctx.fill();
       ctx.restore();
       ctx.shadowBlur=0;
@@ -1014,9 +1021,8 @@ function draw(g){
 
   // ── PROJECTILES ──
   for(const pr of g.projs){
-    ctx.shadowColor=pr.glow;ctx.shadowBlur=14;ctx.fillStyle=pr.col;
+    ctx.fillStyle=pr.col;
     ctx.beginPath();ctx.arc(pr.x,pr.y,pr.sz,0,PI2);ctx.fill();
-    ctx.shadowBlur=0;
   }
 
   // ── ENEMIES ──
