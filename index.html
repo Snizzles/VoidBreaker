@@ -176,10 +176,11 @@ function snd(type){
       g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.1);
       o.start();o.stop(t+.1);
     }else if(type==='hit'){
-      const o=a.createOscillator();o.type='sawtooth';o.connect(g);
-      o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(70,t+.08);
-      g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.08);
-      o.start();o.stop(t+.08);
+      const o=a.createOscillator();o.type='triangle';o.connect(g);
+      o.frequency.setValueAtTime(320,t);o.frequency.exponentialRampToValueAtTime(680,t+.03);
+      o.frequency.exponentialRampToValueAtTime(190,t+.14);
+      g.gain.setValueAtTime(.11,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);
+      o.start();o.stop(t+.14);
     }else if(type==='xp'){
       const o=a.createOscillator();o.connect(g);
       o.frequency.setValueAtTime(500,t);o.frequency.exponentialRampToValueAtTime(1000,t+.06);
