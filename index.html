@@ -120,7 +120,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.2.0</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.2.1</div>
   <div class="overlay-sub" id="ov-sub">
     Move to dodge. Weapons fire <b style="color:#c080ff">automatically</b>.<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -397,7 +397,7 @@ const WDEFS=[
     stats(lv){return{cd:Math.max(.28,1.1-lv*.1),dmg:14+lv*8,bounces:2+Math.floor(lv*.65),rng:150+lv*18}}
   },
   { // 4: Shadow Orbs
-    id:4,name:'SHADOW ORBS',icon:'🌑',col:'#8040ff',
+    id:4,name:'SHADOW ORBS',icon:'🌑',col:'#ffcc00',
     desc:'Orbiting damage spheres',
     ld:['2 orbs','3 orbs','+damage','4 orbs','+size','5 orbs','6 orbs','7 orbs MAX'],
     maxLv:8,
@@ -967,7 +967,7 @@ function draw(g){
     for(let i=0;i<ws.cnt;i++){
       const a=(ow.angle||0)+(i/ws.cnt)*PI2;
       const ox=p.x+Math.cos(a)*ws.orbitR,oy=p.y+Math.sin(a)*ws.orbitR;
-      ctx.shadowColor='#8040ff';ctx.shadowBlur=16;ctx.fillStyle='#8040ff';
+      ctx.shadowColor=WDEFS[4].col;ctx.shadowBlur=16;ctx.fillStyle=WDEFS[4].col;
       ctx.beginPath();ctx.arc(ox,oy,ws.sz,0,PI2);ctx.fill();
       ctx.shadowBlur=0;
     }
