@@ -28,6 +28,8 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Overcharge** — first shot after standing still for 0.5s deals 2× damage
 
 ### Quality of Life
+- [ ] **Achievements** — local badge system (first boss kill, 10-minute survival, x20 combo, etc.)
+- [ ] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player
 - [ ] **Kill counter by enemy type** — end screen breakdown of what you killed
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen
 - [ ] **Gem vacuum on boss kill** — auto-collect all on-screen gems when a boss dies
@@ -79,7 +81,6 @@ This document tracks planned features, improvements, and long-term design goals.
 ### Polish
 - [ ] **Animated title screen** — particle void effect on the main overlay
 - [ ] **Death replay** — short 3-second instant replay of the killing blow
-- [ ] **Achievements** — local badge system (first boss kill, 10-minute survival, x20 combo, etc.)
 - [ ] **Custom soundtrack** — procedurally generated or looping chiptune tracks per arena theme
 - [ ] **Accessibility options** — colorblind palette, reduced motion mode, larger UI text
 

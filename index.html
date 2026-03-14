@@ -721,7 +721,7 @@ function update(g,dt){
   if(g.keysCollected&&g.voidBeastPhase===null&&dist2(p,{x:0,y:0})<3600){
     g.voidBeastPhase='active';
     const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
-      hp:40000,maxHp:40000,spd:55,dmg:55,sz:56,xp:250,sc:1500,
+      hp:1000000,maxHp:1000000,spd:55,dmg:55,sz:56,xp:250,sc:1500,
       boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:1.2};
     g.enemies.push(vb);g.bossActive=vb;
     snd('boss');shake(15);flashScreen('#cc0030',.6);
