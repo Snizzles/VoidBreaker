@@ -585,7 +585,7 @@ function chainBolt(g,fx,fy,target,bounces,range,dmg,hit){
   target.hp-=d;target.flash=.12;
   spawnParts(target.x,target.y,5,'#40ff80',90,.3,3);
   spawnNum(target.x,target.y-target.sz,d,'#40ff80');
-  G.totalDmg+=d;
+  g.totalDmg+=d;
   if(bounces>0){
     let next=null,nd=Infinity;
     for(const e of g.enemies){
@@ -593,7 +593,7 @@ function chainBolt(g,fx,fy,target,bounces,range,dmg,hit){
       const dd2=dist(target,e);
       if(dd2<range&&dd2<nd){nd=dd2;next=e}
     }
-    if(next)setTimeout(()=>{if(G&&G.state==='playing')chainBolt(g,target.x,target.y,next,bounces-1,range,dmg,[...hit,next])},55);
+    if(next)setTimeout(()=>{if(g.state==='playing')chainBolt(g,target.x,target.y,next,bounces-1,range,dmg,[...hit,next])},55);
   }
 }
 
@@ -676,7 +676,7 @@ function update(g,dt){
         }
       }
     }else if(w.id===1){// Laser Whip - angle only updated here
-      w.angle=(w.angle||0)+ws.rotSpd*dt;
+      w.angle=((w.angle||0)+ws.rotSpd*dt)%PI2;
       // Damage applied in enemy loop below
     }else if(w.id===2){// Nova Bomb
       w.timer-=dt/ps.cdMult;
@@ -694,7 +694,7 @@ function update(g,dt){
         if(near&&nd<ws.rng*2)chainBolt(g,p.x,p.y,near,ws.bounces,ws.rng,ws.dmg*ps.dmgMult,[near]);
       }
     }else if(w.id===4){// Shadow Orbs - angle only
-      w.angle=(w.angle||0)+ws.rotSpd*dt;
+      w.angle=((w.angle||0)+ws.rotSpd*dt)%PI2;
     }else if(w.id===5){// Gravity Vortex - applied below
     }
   }
@@ -849,11 +849,14 @@ function update(g,dt){
       if(g.combo>g.comboMax)g.comboMax=g.combo;
       if(g.combo>=3){
         const comboCol=g.combo>=10?'#ff4040':g.combo>=6?'#ffaa00':'#ffff00';
-        spawnNum(e.x,e.y-e.sz-10,0,comboCol);// triggers combo text in spawnNum override below
-        // Overwrite last entry with combo text
-        parts[parts.length-1].txt=`x${g.combo} COMBO!`;
-        parts[parts.length-1].sz=g.combo>=10?22:g.combo>=6?18:14;
-        parts[parts.length-1].vy=-110;parts[parts.length-1].life=1;parts[parts.length-1].ml=1;
+        const prevLen=parts.length;
+        spawnNum(e.x,e.y-e.sz-10,0,comboCol);
+        // Only overwrite if spawnNum actually pushed a particle
+        if(parts.length>prevLen){
+          parts[parts.length-1].txt=`x${g.combo} COMBO!`;
+          parts[parts.length-1].sz=g.combo>=10?22:g.combo>=6?18:14;
+          parts[parts.length-1].vy=-110;parts[parts.length-1].life=1;parts[parts.length-1].ml=1;
+        }
       }
       g.kills++;g.score+=e.sc*(g.combo>=3?1+g.combo*.1:1);
       g.enemies.splice(i,1);continue;

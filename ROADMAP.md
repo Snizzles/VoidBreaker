@@ -28,6 +28,9 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen
 - [ ] **Gem vacuum on boss kill** — auto-collect all on-screen gems when a boss dies
 - [ ] **Minimap** — small corner display showing enemy density around the player
+- [ ] **Off-screen boss/elite indicator** — arrow or icon at screen edge pointing toward approaching bosses
+- [ ] **Pending level-up counter** — show queued level-ups (e.g. "2 pending") on the XP bar when multiple are stacked
+- [ ] **Weapon DPS display** — show estimated DPS next to each weapon in the weapons HUD
 
 ---
 
@@ -80,10 +83,11 @@ This document tracks planned features, improvements, and long-term design goals.
 
 ## Known Issues / Tech Debt
 
-- Combo text particle overwrites the last particle slot — low risk but brittle, should use a dedicated overlay layer
-- `G.totalDmg` referenced as a global inside `chainBolt`'s setTimeout — should pass damage accumulator by reference
 - Star background uses `%` wrap math that produces minor visual stutter at large camera offsets — switch to true parallax tile wrapping
 - No frame-rate independence guard beyond `dt` cap of 50ms — very low FPS devices may still exhibit physics jitter
+- Enemy eye always faces right — should rotate toward the player's position for better visual feedback
+- No off-screen enemy indicators — large enemies or bosses approaching from outside the viewport give no warning
+- No visual feedback for armor damage reduction — blocked damage should flash a shield icon or show reduced numbers in a distinct color
 
 ---
 
