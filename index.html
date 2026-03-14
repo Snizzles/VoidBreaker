@@ -887,16 +887,6 @@ function update(g,dt){
       // Combo system
       g.combo++;g.comboTimer=2.2;
       if(g.combo>g.comboMax)g.comboMax=g.combo;
-      if(g.combo>=3){
-        const comboCol=g.combo>=10?'#ff4040':g.combo>=6?'#ffaa00':'#ffff00';
-        const prevLen=nums.length;
-        spawnNum(e.x,e.y-e.sz-10,0,comboCol);
-        if(nums.length>prevLen){
-          nums[nums.length-1].txt=`x${g.combo} COMBO!`;
-          nums[nums.length-1].sz=g.combo>=10?22:g.combo>=6?18:14;
-          nums[nums.length-1].vy=-110;nums[nums.length-1].life=1;nums[nums.length-1].ml=1;
-        }
-      }
       g.kills++;g.score+=e.sc*(g.combo>=3?1+g.combo*.1:1);
       g.enemies.splice(i,1);continue;
     }
@@ -1221,18 +1211,6 @@ function draw(g){
   ctx.fillText(`🔑 ${collected}/3 KEYS`,W-14,56);
   ctx.textAlign='left';
 
-  // ── LIVE COMBO COUNTER (screen space) ──
-  if(g.combo>=3&&g.comboTimer>0){
-    const alpha=Math.min(1,g.comboTimer);
-    const scale=g.combo>=10?1.4:g.combo>=6?1.2:1;
-    const col=g.combo>=10?'#ff4040':g.combo>=6?'#ffaa00':'#ffff00';
-    ctx.globalAlpha=alpha;
-    ctx.font=`bold ${Math.floor(28*scale)}px 'Courier New'`;
-    ctx.textAlign='center';
-    ctx.fillStyle=col;
-    ctx.fillText(`★ x${g.combo} COMBO! ★`,W/2,H*.35);
-    ctx.globalAlpha=1;ctx.textAlign='left';
-  }
 }
 
 // ═══════════════════════════════════════════
@@ -1352,7 +1330,6 @@ function endScreen(g,won){
   stats.innerHTML=`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
     Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
-    Best Combo: <span class="sh">x${g.comboMax}</span><br>
     Level: <span class="sh">${g.p.lv}</span><br>
     Score: <span class="sh">${Math.floor(g.score).toLocaleString()}</span><br>
     Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span>`;
