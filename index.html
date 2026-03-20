@@ -122,6 +122,7 @@ canvas{display:block}
     <div id="hud-right">
       <span class="hs" id="h-diff" style="font-size:clamp(8px,1.1vw,11px);letter-spacing:2px;opacity:.7">NORMAL</span>
       <span class="hs" id="h-time">00:00</span>
+      <span class="hs" id="h-keys" style="color:#00ffff">🔑 0/3</span>
       <span class="hs" id="h-kills">0 ☠</span>
     </div>
   </div>
@@ -613,7 +614,7 @@ function getChoices(g){
   // Shuffle all
   const all=[...wc,...pc];
   for(let i=all.length-1;i>0;i--){const j=rndInt(0,i);[all[i],all[j]]=[all[j],all[i]]}
-  const out=all.slice(0,Math.min(2,all.length));
+  const out=all.slice(0,Math.min(3,all.length));
   // Always offer emergency heal as an option
   out.push({type:'heal'});
   return out;
@@ -706,7 +707,7 @@ function chainBolt(g,fx,fy,target,bounces,range,dmg,hit){
   const d=Math.max(1,dmg-hit.length*4);
   target.hp-=d;target.flash=.12;
   spawnParts(target.x,target.y,5,'#40ff80',90,.3,3);
-  spawnNum(target.x,target.y-target.sz,d,'#40ff80');
+  spawnNum(target.x,target.y-target.sz,d);
   g.totalDmg+=d;
   if(bounces>0){
     let next=null,nd=Infinity;
@@ -1436,12 +1437,6 @@ function draw(g){
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
-  // ── KEY HUD (screen space, near timer) ──
-  const collected=g.keys.filter(k=>k.collected).length;
-  ctx.fillStyle=collected>=3?'#00ff88':'#00ffff';
-  ctx.font="bold 14px 'Courier New'";ctx.textAlign='right';
-  ctx.fillText(`🔑 ${collected}/3 KEYS`,W-14,56);
-  ctx.textAlign='left';
 
 }
 
@@ -1508,6 +1503,9 @@ function updateHUD(g){
   document.getElementById('xp-label').textContent=`${Math.floor(p.xp)} / ${p.xpNext} XP  ·  next level up`;
   document.getElementById('h-lvl').textContent='LVL '+p.lv;
   document.getElementById('h-kills').textContent=g.kills+' ☠';
+  const kc=g.keys.filter(k=>k.collected).length;
+  const hk=document.getElementById('h-keys');
+  hk.textContent=`🔑 ${kc}/3`;hk.style.color=kc>=3?'#00ff88':'#00ffff';
   const m=Math.floor(g.time/60),s=Math.floor(g.time%60);
   document.getElementById('h-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('hp-fill').style.width=(p.hp/p.maxHp)*100+'%';
