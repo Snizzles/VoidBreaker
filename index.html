@@ -78,8 +78,18 @@ canvas{display:block}
 #joy-base{position:absolute;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.18);display:none;transform:translate(-50%,-50%)}
 #joy-stick{position:absolute;width:42px;height:42px;border-radius:50%;background:rgba(160,96,255,.55);border:2px solid rgba(210,160,255,.8);display:none;transform:translate(-50%,-50%);box-shadow:0 0 14px rgba(160,96,255,.8)}
 
+/* ── DIFFICULTY PICKER ── */
+#diff-pick-section{margin:0 0 8px;text-align:center}
+#diff-pick-label{font-size:clamp(9px,1.3vw,12px);color:#6060a0;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase}
+#diff-pick-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:0 12px}
+.dpick{background:linear-gradient(135deg,#080818,#101028);border:2px solid #252560;border-radius:8px;
+  padding:9px 20px 8px;min-width:clamp(80px,11vw,120px);cursor:pointer;transition:all .14s;text-align:center;touch-action:manipulation}
+.dpick:hover{transform:translateY(-3px)}
+.dpick.selected{box-shadow:0 0 18px rgba(180,100,255,.45)}
+.dpick-name{font-size:clamp(11px,1.5vw,16px);font-weight:bold;letter-spacing:3px;margin-bottom:3px}
+.dpick-desc{font-size:clamp(7px,.9vw,9px);color:#888;line-height:1.3}
 /* ── WEAPON PICKER ── */
-#weapon-pick-section{margin:14px 0 6px;text-align:center}
+#weapon-pick-section{margin:8px 0 6px;text-align:center}
 #weapon-pick-label{font-size:clamp(9px,1.3vw,12px);color:#6060a0;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase}
 #weapon-pick-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:820px;padding:0 12px}
 .wpick{background:linear-gradient(135deg,#080818,#101028);border:2px solid #252560;border-radius:8px;
@@ -110,6 +120,7 @@ canvas{display:block}
       <div id="xp-label">0 / 12 XP &nbsp;·&nbsp; kill enemies, collect ◆ gems</div>
     </div>
     <div id="hud-right">
+      <span class="hs" id="h-diff" style="font-size:clamp(8px,1.1vw,11px);letter-spacing:2px;opacity:.7">NORMAL</span>
       <span class="hs" id="h-time">00:00</span>
       <span class="hs" id="h-kills">0 ☠</span>
     </div>
@@ -126,11 +137,15 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.6.0</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.8.0</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
     <span style="color:#606090">WASD / Arrows &nbsp;|&nbsp; Touch joystick on mobile &nbsp;|&nbsp; ESC to pause</span>
+  </div>
+  <div id="diff-pick-section">
+    <div id="diff-pick-label">Choose difficulty</div>
+    <div id="diff-pick-grid"></div>
   </div>
   <div id="weapon-pick-section">
     <div id="weapon-pick-label">Choose your starting weapon</div>
@@ -317,7 +332,7 @@ function inputDir(){
 // ═══════════════════════════════════════════
 let parts=[];
 const MAX_PARTS=500;
-const MAX_ENEMIES=150;
+const MAX_ENEMIES=200;
 let nums=[];
 const MAX_NUMS=150;
 function spawnParts(x,y,n,col,spd=120,life=.5,sz=3){
@@ -499,17 +514,52 @@ const BTYPES=[
 ];
 
 // ═══════════════════════════════════════════
+// DIFFICULTY CONFIG
+// ═══════════════════════════════════════════
+const DIFFS={
+  easy:{
+    label:'EASY',col:'#40ff80',
+    desc:'Weaker enemies, more healing. Great for learning.',
+    startHp:150,
+    heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
+    hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
+    spawnMin:.5,
+    voidHp:250000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,
+  },
+  normal:{
+    label:'NORMAL',col:'#b070ff',
+    desc:'The intended experience.',
+    startHp:100,
+    heartChance:.05,heartHeal:18,heartHealBoss:35,emergencyHeal:60,
+    hpRate:100,hpCap:7,dmgRate:160,dmgCap:4,
+    spawnMin:.35,
+    voidHp:500000,voidBoltDmg:30,voidBoltMin:1.0,voidBoltMax:1.8,
+  },
+  hard:{
+    label:'HARD',col:'#ff4060',
+    desc:'Faster scaling, scarce healing. Veterans only.',
+    startHp:75,
+    heartChance:.02,heartHeal:10,heartHealBoss:20,emergencyHeal:40,
+    hpRate:65,hpCap:10,dmgRate:100,dmgCap:6,
+    spawnMin:.25,
+    voidHp:1000000,voidBoltDmg:42,voidBoltMin:0.6,voidBoltMax:1.2,
+  },
+};
+
+// ═══════════════════════════════════════════
 // GAME STATE
 // ═══════════════════════════════════════════
 let G=null; // current game
 let loopId=null;
 
 function mkGame(){
+  const diff=DIFFS[selectedDifficulty];
   return{
     state:'playing',// playing|paused|levelup|dead|win
+    diff,
     time:0,kills:0,score:0,totalDmg:0,
     p:{// player
-      x:0,y:0,hp:100,maxHp:100,speed:135,
+      x:0,y:0,hp:diff.startHp,maxHp:diff.startHp,speed:135,
       lv:1,xp:0,xpNext:12,
       weapons:[],// [{id,lv,timer,angle}]
       passives:{},// {id:lv}
@@ -579,11 +629,11 @@ function applyChoice(g,c){
     p.passives[c.id]=(p.passives[c.id]||0)+1;
     if(c.id===2){// HP Matrix
       const ns=pStats(g);
-      p.maxHp=100+ns.hpBonus;
+      p.maxHp=g.diff.startHp+ns.hpBonus;
       p.hp=Math.min(p.maxHp,p.hp+35);
     }
   }else{
-    p.hp=Math.min(p.maxHp,p.hp+60);
+    p.hp=Math.min(p.maxHp,p.hp+g.diff.emergencyHeal);
   }
 }
 
@@ -596,8 +646,8 @@ function spawnEnemy(g,typeId){
   let base;
   if(typeId!==undefined){base={...ETYPES[typeId]}}
   else base={...pick(g.time)};
-  const scale=Math.min(1+g.time/100, 7);// cap at 7× HP
-  const dmgScale=Math.min(1+g.time/160, 4);// cap at 4× damage
+  const scale=Math.min(1+g.time/g.diff.hpRate, g.diff.hpCap);
+  const dmgScale=Math.min(1+g.time/g.diff.dmgRate, g.diff.dmgCap);
   const e={...base,x,y,maxHp:base.hp*scale,hp:base.hp*scale,dmg:base.dmg*dmgScale,flash:0,tpTimer:rnd(3,7),leapTimer:rnd(1.5,3)};
   g.enemies.push(e);
 }
@@ -626,8 +676,8 @@ function spawnBoss(g){
 }
 
 function spawnKeyGuards(g,k){
-  const scale=Math.min(1+g.time/100,7);
-  const dmgScale=Math.min(1+g.time/160,4);
+  const scale=Math.min(1+g.time/g.diff.hpRate,g.diff.hpCap);
+  const dmgScale=Math.min(1+g.time/g.diff.dmgRate,g.diff.dmgCap);
   // Elite Brute at key position (3× time scaling for HP)
   const brute={...ETYPES[2],x:k.x,y:k.y};
   const bScale=Math.min(1+g.time/33,12);
@@ -738,7 +788,7 @@ function update(g,dt){
     if(g.voidBeastCountdown<=0){
       g.voidBeastPhase='active';
       const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
-        hp:500000,maxHp:500000,spd:0,dmg:55,sz:56,xp:250,sc:1500,
+        hp:g.diff.voidHp,maxHp:g.diff.voidHp,spd:0,dmg:55,sz:56,xp:250,sc:1500,
         boss:true,voidBeast:true,x:0,y:0,flash:0,rot:0,vbTimer:3};
       g.enemies.push(vb);g.bossActive=vb;
       snd('boss');shake(15);flashScreen('#cc0030',.6);
@@ -949,12 +999,12 @@ function update(g,dt){
     if(e.voidBeast){
       e.vbTimer-=dt;
       if(e.vbTimer<=0){
-        e.vbTimer=rnd(1,1.8);
+        e.vbTimer=rnd(g.diff.voidBoltMin,g.diff.voidBoltMax);
         const ba=angle(e,p),bs=200;
         // Fire 3-bolt spread
         for(const spread of [-0.28,0,0.28]){
           const a=ba+spread;
-          g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:30,sz:9});
+          g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:g.diff.voidBoltDmg,sz:9});
         }
         snd('shoot');
       }
@@ -974,7 +1024,7 @@ function update(g,dt){
       const gc=e.boss?18:1,xg=e.xp/gc;
       for(let gi=0;gi<gc;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
         sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffdd00':(e.xp>5?'#80ff40':'#40ffb0')});
-      if(Math.random()<(e.boss?.85:.05))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?35:18});
+      if(Math.random()<(e.boss?.85:g.diff.heartChance))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?g.diff.heartHealBoss:g.diff.heartHeal});
       // Juicy death particles
       spawnParts(e.x,e.y,e.boss?60:20,e.col,e.boss?220:180,.8,e.sz*.6);
       spawnParts(e.x,e.y,e.boss?30:10,'#ffffff',e.boss?180:140,.4,e.sz*.3);
@@ -1052,7 +1102,7 @@ function update(g,dt){
       const toSpawn=Math.min(cnt,MAX_ENEMIES-g.enemies.length);
       for(let i=0;i<toSpawn;i++)spawnEnemy(g);
     }
-    g.spawnInt=Math.max(.35,1.5-g.time*.003);
+    g.spawnInt=Math.max(g.diff.spawnMin,1.5-g.time*.003);
     g.spawnT=g.spawnInt;
   }
 
@@ -1402,6 +1452,29 @@ function draw(g){
 // WEAPON PICKER (start screen)
 // ═══════════════════════════════════════════
 let selectedWeapon=0;
+let selectedDifficulty='normal';
+
+function buildDiffPicker(){
+  const grid=document.getElementById('diff-pick-grid');
+  grid.innerHTML='';
+  for(const[key,d] of Object.entries(DIFFS)){
+    const el=document.createElement('div');
+    el.className='dpick'+(key===selectedDifficulty?' selected':'');
+    el.style.borderColor=key===selectedDifficulty?d.col:'#252560';
+    el.innerHTML=`<div class="dpick-name" style="color:${d.col}">${d.label}</div>
+      <div class="dpick-desc">${d.desc}</div>`;
+    el.addEventListener('click',()=>{
+      selectedDifficulty=key;
+      document.querySelectorAll('.dpick').forEach((c,i)=>{
+        const dk=Object.keys(DIFFS)[i];
+        c.classList.toggle('selected',dk===key);
+        c.style.borderColor=dk===key?DIFFS[dk].col:'#252560';
+      });
+    });
+    grid.appendChild(el);
+  }
+}
+
 function buildWeaponPicker(){
   const grid=document.getElementById('weapon-pick-grid');
   grid.innerHTML='';
@@ -1478,7 +1551,7 @@ function showLU(g){
         <div class="ci">💊</div>
         <div class="cn">EMERGENCY HEAL</div>
         <div class="cl">Instant use</div>
-        <div class="cd">Restore 60 HP right now</div>`;
+        <div class="cd">Restore ${g.diff.emergencyHeal} HP right now</div>`;
     }
     card.addEventListener('click',()=>{
       applyChoice(g,c);g.pendingLU--;
@@ -1576,7 +1649,8 @@ function endScreen(g,won){
   sub.textContent=won?'The Void Beast is slain — you have escaped the void!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
   stats.style.display='block';
   const achCount=unlockedAch.size,achTotal=ACHIEVEMENTS.length;
-  stats.innerHTML=`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
+  stats.innerHTML=`Difficulty: <span class="sh" style="color:${g.diff.col}">${g.diff.label}</span><br>
+    Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
     Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
     Level: <span class="sh">${g.p.lv}</span><br>
@@ -1586,8 +1660,10 @@ function endScreen(g,won){
   document.getElementById('start-btn').style.display='none';
   document.getElementById('retry-btn').style.display='block';
   document.getElementById('continue-btn').style.display=won?'block':'none';
-  // Show weapon picker so player can change starting weapon before retrying
+  // Show weapon/difficulty pickers so player can change before retrying
+  document.getElementById('diff-pick-section').style.display='block';
   document.getElementById('weapon-pick-section').style.display='block';
+  buildDiffPicker();
   buildWeaponPicker();
   ov.classList.remove('hidden');
 }
@@ -1635,6 +1711,8 @@ function startGame(){
   hintTimers.push(setTimeout(()=>hint.classList.add('fade'),5000));
   hintTimers.push(setTimeout(()=>hint.style.display='none',6200));
   G=mkGame();
+  const hd=document.getElementById('h-diff');
+  hd.textContent=G.diff.label;hd.style.color=G.diff.col;
   // Spawn 3 keys at random angles, spread ~120° apart, distance 1800-2800 from origin
   const baseAngle=Math.random()*PI2;
   for(let ki=0;ki<3;ki++){
@@ -1663,6 +1741,7 @@ function startGame(){
 document.getElementById('hud').style.display='none';
 document.getElementById('hp-wrap').style.display='none';
 document.getElementById('hint').style.display='none';
+buildDiffPicker();
 buildWeaponPicker();
 lastT=performance.now();
 requestAnimationFrame(loop);

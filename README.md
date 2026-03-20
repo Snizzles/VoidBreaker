@@ -105,10 +105,23 @@ The **Void Beast** is the final boss — it spawns at the Void Gate when you ret
 
 ---
 
+## Difficulty Modes
+
+Choose your challenge at the start of each run:
+
+| Difficulty | Starting HP | Enemy Scaling | Heart Drops | Void Beast HP |
+|------------|-------------|---------------|-------------|---------------|
+| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 250,000 |
+| Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 |
+| Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 |
+
+---
+
 ## Version History
 
 | Version | Notes |
 |---------|-------|
+| v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 200 |
 | v1.7.0 | Achievements (13 badges, localStorage-persistent, in-game toast notifications); Void Beast massively buffed; Continue Playing button on win screen |
 | v1.6.0 | Void Gate + Void Beast final boss; ESC pause menu; phantom teleport distance fix |
 | v1.5.0 | Key difficulty rebalance: keys spawn 3× further out (1800-2800px); guardian enemies (elite Brute + Crawler/Swarm cluster) spawn to defend each key on approach |
