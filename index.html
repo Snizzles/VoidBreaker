@@ -74,7 +74,7 @@ canvas{display:block}
 .wslot{font-size:clamp(9px,1.2vw,11px);color:#9090d0;line-height:1.8}
 
 /* ── JOYSTICK ── */
-#joy-zone{position:fixed;left:0;bottom:0;width:50%;height:48%;z-index:40;touch-action:none}
+#joy-zone{position:fixed;inset:0;z-index:40;touch-action:none}
 #joy-base{position:absolute;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.18);display:none;transform:translate(-50%,-50%)}
 #joy-stick{position:absolute;width:42px;height:42px;border-radius:50%;background:rgba(160,96,255,.55);border:2px solid rgba(210,160,255,.8);display:none;transform:translate(-50%,-50%);box-shadow:0 0 14px rgba(160,96,255,.8)}
 
@@ -305,7 +305,7 @@ jZone.addEventListener('touchmove',e=>{
   for(const t of e.changedTouches){
     if(t.identifier===joyId){
       const dx=t.clientX-joyBase.x,dy=t.clientY-joyBase.y;
-      const d=Math.sqrt(dx*dx+dy*dy),r=44;
+      const d=Math.sqrt(dx*dx+dy*dy),r=36;
       const nx=d>r?(dx/d)*r:dx,ny=d>r?(dy/d)*r:dy;
       joyDir={x:nx/r,y:ny/r};
       jStick.style.left=(joyBase.x+nx)+'px';jStick.style.top=(joyBase.y+ny)+'px';
