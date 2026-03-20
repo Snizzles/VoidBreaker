@@ -30,7 +30,7 @@ This document tracks planned features, improvements, and long-term design goals.
 
 ### Quality of Life
 - [x] **Achievements** — local badge system (first boss kill, 5-minute survival, ×20 combo, etc.) (v1.7.0)
-- [ ] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player
+- [x] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player (v1.8.1)
 - [ ] **Kill counter by enemy type** — end screen breakdown of what you killed
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen
 - [ ] **Gem vacuum on boss kill** — auto-collect all on-screen gems when a boss dies

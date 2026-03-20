@@ -577,6 +577,7 @@ function mkGame(){
     voidBeastPhase:null,// null | 'countdown' | 'active' | 'defeated'
     voidBeastCountdown:0,
     voidBolts:[],
+    xpVacuumTimer:0,
   };
 }
 
@@ -1064,11 +1065,15 @@ function update(g,dt){
   }
 
   // ── GEMS ──
-  const mag=ps.magnet;
+  if(g.xpVacuumTimer>0)g.xpVacuumTimer-=dt;
+  const mag=ps.magnet,vacuum=g.xpVacuumTimer>0;
   for(let i=g.gems.length-1;i>=0;i--){
     const gem=g.gems[i];
     const d=dist(p,gem);
-    if(d<mag){
+    if(vacuum&&!gem.heart){
+      const a=angle(gem,p);
+      gem.x+=Math.cos(a)*900*dt;gem.y+=Math.sin(a)*900*dt;
+    }else if(d<mag){
       const a=angle(gem,p),spd=d<45?520:200;
       gem.x+=Math.cos(a)*spd*dt;gem.y+=Math.sin(a)*spd*dt;
     }
@@ -1086,6 +1091,7 @@ function update(g,dt){
     if(!k.guardsSpawned&&dist(p,k)<250){k.guardsSpawned=true;spawnKeyGuards(g,k)}
     if(dist(p,k)<30){
       k.collected=true;
+      g.xpVacuumTimer=3;
       snd('key');shake(8);flashScreen('#00ffff',.45);
       spawnParts(k.x,k.y,40,'#00ffff',200,.8,7);
       spawnParts(k.x,k.y,20,'#ffffff',150,.5,4);
