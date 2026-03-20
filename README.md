@@ -111,9 +111,9 @@ Choose your challenge at the start of each run:
 
 | Difficulty | Starting HP | Enemy Scaling | Heart Drops | Void Beast HP |
 |------------|-------------|---------------|-------------|---------------|
-| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 100,000 |
-| Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 |
-| Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 |
+| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 100,000 (3 bolts/burst) |
+| Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 (5 bolts/burst) |
+| Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 (7 bolts/burst) |
 
 ---
 
@@ -121,6 +121,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.8.1 | Void Beast bolt count scaled by difficulty (3/5/7 per burst); Easy Void Beast HP cut to 100K; iOS touch zone expanded to full screen; key counter moved to HUD; level-up now offers 4 cards (3 random + heal); Chain Bolt damage numbers no longer green |
 | v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 200 |
 | v1.7.0 | Achievements (13 badges, localStorage-persistent, in-game toast notifications); Void Beast massively buffed; Continue Playing button on win screen |
 | v1.6.0 | Void Gate + Void Beast final boss; ESC pause menu; phantom teleport distance fix |

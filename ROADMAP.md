@@ -10,6 +10,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [x] **Pause menu** — ESC to pause/resume, overlay with resume button (v1.6.0)
 - [ ] **Volume control** — mute toggle and basic slider in the overlay
 - [x] **Difficulty modes** — Easy / Normal / Hard selectable at run start; each tunes enemy scaling, spawn rate, heart drops, healing, and Void Beast stats (v1.8.0)
+- [ ] **Voidpossible mode** — a fourth difficulty beyond Hard; planned but not yet designed
 - [ ] **Hard-mode unlocks** — clear Normal to unlock Void difficulty
 - [x] **Key collection win condition** — collect 3 scattered keys before 10:00 to win; replaces pure survival timer (v1.4.0)
 - [x] **Key difficulty rebalance** — keys spawn further out (1800-2800px) and are guarded by enemy clusters that spawn on approach (v1.5.0)
