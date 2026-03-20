@@ -525,7 +525,7 @@ const DIFFS={
     heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
     hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
     spawnMin:.5,
-    voidHp:100000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
+    voidHp:50000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
   },
   normal:{
     label:'NORMAL',col:'#b070ff',
@@ -574,8 +574,8 @@ function mkGame(){
     nextBoss:120,// seconds until next boss
     keys:[],keysCollected:false,
     bossKills:0,
-    voidBeastPhase:null,// null | 'countdown' | 'active' | 'defeated'
-    voidBeastCountdown:0,
+    voidBeastPhase:null,// null | 'countdown' | 'active' | 'ending' | 'defeated'
+    voidBeastCountdown:0,voidEndTimer:0,
     voidBolts:[],
     xpVacuumTimer:0,
   };
@@ -797,6 +797,16 @@ function update(g,dt){
       document.getElementById('boss-wrap').style.display='block';
       document.getElementById('boss-name').textContent='VOID BEAST';
     }
+  }
+  if(g.voidBeastPhase==='ending'){
+    g.voidEndTimer-=dt;
+    if(Math.random()<.45)spawnParts(0,0,8,'#ffdd00',rnd(180,360),1.4,rnd(8,20));
+    if(Math.random()<.25)spawnParts(0,0,5,'#ff40a0',rnd(150,280),1.0,rnd(5,14));
+    if(Math.random()<.2) spawnParts(0,0,4,'#00ffdd',rnd(140,240),.8,rnd(4,10));
+    if(Math.random()<.12){shake(5);flashScreen('#ffdd00',.12);}
+    updateParts(dt);updateNums(dt);updateShake(dt);updateFlash(dt);
+    if(g.voidEndTimer<=0){g.voidBeastPhase='defeated';g.state='win';endScreen(g,true);}
+    return;
   }
   if(g.voidBeastPhase==='defeated'){g.state='win';endScreen(g,true);return}
   // Lose at 10 min if not escaped
@@ -1034,7 +1044,7 @@ function update(g,dt){
       if(e.boss){
         snd('explode');shake(18);flashScreen('#ff40a0',0.55);
         spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
-        if(e.voidBeast)g.voidBeastPhase='defeated';
+        if(e.voidBeast){g.voidBeastPhase='ending';g.voidEndTimer=4;}
         else g.bossKills++;
         document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
         spawnNum(e.x,e.y-60,999,'#ffdd00');
@@ -1426,6 +1436,26 @@ function draw(g){
     const fontSize=Math.max(14,Math.min(28,W*.03));
     ctx.globalAlpha=blink;ctx.fillStyle='#ffcc00';ctx.font=`bold ${fontSize}px 'Courier New'`;ctx.textAlign='center';
     ctx.fillText('RETURN TO THE VOID GATE',W/2,H*.18);
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── VOID BEAST DEATH SEQUENCE ──
+  if(g.voidBeastPhase==='ending'){
+    const elapsed=4-g.voidEndTimer;
+    const fadeIn=Math.min(1,elapsed/0.4);
+    const fsLg=Math.round(clamp(H*.07,36,90)),fsSm=Math.round(clamp(H*.04,22,52));
+    ctx.textAlign='center';
+    ctx.globalAlpha=fadeIn;
+    ctx.fillStyle='#ffdd00';
+    ctx.font=`bold ${fsLg}px 'Courier New'`;
+    ctx.fillText('VOID BEAST DEFEATED',W/2,H/2-fsSm*.6);
+    if(elapsed>1.2){
+      const a2=Math.min(1,(elapsed-1.2)/0.5);
+      ctx.globalAlpha=a2;
+      ctx.fillStyle='#00ffdd';
+      ctx.font=`bold ${fsSm}px 'Courier New'`;
+      ctx.fillText('YOU HAVE ESCAPED THE VOID',W/2,H/2+fsSm*.9);
+    }
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
