@@ -63,23 +63,45 @@ The **Void Beast** is the final boss — it spawns at the Void Gate when you ret
 
 ## Achievements
 
-13 achievements tracked in your browser across all runs. Unlock notifications appear in-game when earned; your total is shown on the end screen.
+35 achievements tracked in your browser across all runs. Unlock notifications appear in-game when earned; your total is shown on the end screen.
 
 | Achievement | How to unlock |
 |-------------|---------------|
 | 🩸 First Blood | Kill your first enemy |
+| ⚡ On a Roll | Reach a ×10 kill combo |
+| ⬆️ Getting Started | Reach level 5 |
+| 💯 High Scorer | Reach 10,000 score |
 | 💀 Void Slayer | Kill 100 enemies in one run |
+| 💀 Void Reaper | Kill 250 enemies in one run |
 | ☠️ Annihilator | Kill 500 enemies in one run |
+| ☠️ Mass Extinction | Kill 1,000 enemies in one run |
+| 🩸 Void Incarnate | Kill 2,000 enemies in one run |
 | 👹 Boss Hunter | Kill your first boss |
-| 🏆 Boss Slayer | Kill 3 bosses in one run |
+| 👹 Boss Slayer | Kill 3 bosses in one run |
+| 🏆 Graveyard Shift | Kill 5 bosses in one run |
+| 🔑 Key Hunter | Collect your first key |
 | 🔑 Key Master | Collect all 3 keys |
+| 🔑 Swift Collector | Collect all 3 keys before 4:00 |
 | ✦ Void Breaker | Defeat the Void Beast |
 | ⚡ Combo King | Reach a ×20 kill combo |
+| 🔥 Killing Spree | Reach a ×50 kill combo |
+| 🌀 Unstoppable | Reach a ×100 kill combo |
+| ⭐ Power Surge | Reach level 10 |
 | ⬆️ Power Rising | Reach level 20 |
+| 🔥 Transcendent | Reach level 30 |
 | 🌟 Ascended | Reach level 50 |
-| ⏱️ Survivor | Survive for 5 minutes |
-| 🔫 Arsenal | Equip 4 weapons simultaneously |
+| 🏆 Void Champion | Reach 50,000 score |
+| 👑 Legendary | Reach 100,000 score |
 | 💥 Obliterator | Deal 100,000 total damage |
+| 💥 Devastator | Deal 500,000 total damage |
+| 🔱 God of Destruction | Deal 1,000,000 total damage |
+| ⏱️ Survivor | Survive for 5 minutes |
+| ⏱️ Iron Will | Survive for 7 minutes |
+| 🔫 Arsenal | Equip 4 weapons simultaneously |
+| 🔫 Walking Armory | Equip all 6 weapons simultaneously |
+| ⚔️ Mastered | Fully upgrade any weapon to level 8 |
+| ⚔️ Triple Mastery | Max out 3 weapons to level 8 |
+| 🛡️ Augmented | Unlock 3 different passive upgrades |
 
 ---
 
