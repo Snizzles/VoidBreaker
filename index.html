@@ -525,7 +525,7 @@ const DIFFS={
     heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
     hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
     spawnMin:.5,
-    voidHp:100000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,
+    voidHp:100000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
   },
   normal:{
     label:'NORMAL',col:'#b070ff',
@@ -534,7 +534,7 @@ const DIFFS={
     heartChance:.05,heartHeal:18,heartHealBoss:35,emergencyHeal:60,
     hpRate:100,hpCap:7,dmgRate:160,dmgCap:4,
     spawnMin:.35,
-    voidHp:500000,voidBoltDmg:30,voidBoltMin:1.0,voidBoltMax:1.8,
+    voidHp:500000,voidBoltDmg:30,voidBoltMin:0.8,voidBoltMax:1.4,voidBoltCount:5,
   },
   hard:{
     label:'HARD',col:'#ff4060',
@@ -543,7 +543,7 @@ const DIFFS={
     heartChance:.02,heartHeal:10,heartHealBoss:20,emergencyHeal:40,
     hpRate:65,hpCap:10,dmgRate:100,dmgCap:6,
     spawnMin:.25,
-    voidHp:1000000,voidBoltDmg:42,voidBoltMin:0.6,voidBoltMax:1.2,
+    voidHp:1000000,voidBoltDmg:42,voidBoltMin:0.5,voidBoltMax:1.0,voidBoltCount:7,
   },
 };
 
@@ -1002,8 +1002,9 @@ function update(g,dt){
       if(e.vbTimer<=0){
         e.vbTimer=rnd(g.diff.voidBoltMin,g.diff.voidBoltMax);
         const ba=angle(e,p),bs=200;
-        // Fire 3-bolt spread
-        for(const spread of [-0.28,0,0.28]){
+        const cnt=g.diff.voidBoltCount,halfSpread=0.55;
+        for(let bi=0;bi<cnt;bi++){
+          const spread=cnt===1?0:lerp(-halfSpread,halfSpread,bi/(cnt-1));
           const a=ba+spread;
           g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:g.diff.voidBoltDmg,sz:9});
         }
