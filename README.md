@@ -111,7 +111,7 @@ Choose your challenge at the start of each run:
 
 | Difficulty | Starting HP | Enemy Scaling | Heart Drops | Void Beast HP |
 |------------|-------------|---------------|-------------|---------------|
-| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 250,000 |
+| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 100,000 |
 | Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 |
 | Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 |
 
