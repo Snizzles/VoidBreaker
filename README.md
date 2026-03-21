@@ -153,6 +153,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.9.5 | Restore original weapon colors — each weapon is now a distinct hue (purple, cyan, orange, green, gold, pink); fix XP gem colors back to original green/mint/gold |
 | v1.9.4 | Void Beast rework: HP unified to 15K across all difficulties; difficulty scales attack patterns (Easy: aimed spread, Normal: +spiral arms, Hard: +ring bursts); Void Beast now fully stationary (immune to Gravity Vortex pull); bullet-hell dodge-focused boss fight |
 | v1.9.3 | Bug fix pass: Continue Playing no longer kills at 10:00; bosses re-spawn after winning; version display corrected; combo score cap (10×); gems array bounded; Gravity Vortex no longer pulls enemies through player; Sidney Mode gets unlimited XP magnets and hides keys on end screen; star twinkle smoothed; weapons HUD cached; XP bar animation fixed on level-up; chain bolt validates targets; dead code removed |
 | v1.9.2 | Sidney Mode: no keys, no Void Gate, no boss references — pure survival sandbox; XP Magnet pickup added (drops 1-2×/run, pulls all gems to player for 5s) |

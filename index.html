@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>VOID BREAKER v1.9.4</title>
+<title>VOID BREAKER v1.9.5</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Courier New',monospace;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -138,7 +138,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.4</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.5</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -438,7 +438,7 @@ let camX=0,camY=0;
 // ═══════════════════════════════════════════
 const WDEFS=[
   { // 0: Void Pulse
-    id:0,name:'VOID PULSE',icon:'💥',col:'#dd99ff',
+    id:0,name:'VOID PULSE',icon:'💥',col:'#a060ff',
     desc:'Fires pulses in all directions',
     ld:['4 pulses','6 pulses','+damage','8 pulses','+size','10 pulses','+pierce','MAX POWER'],
     maxLv:8,
@@ -452,28 +452,28 @@ const WDEFS=[
     stats(lv){return{len:90+lv*22,wid:4+lv,dps:18+lv*9,rotSpd:1.6+lv*.2,cnt:lv>=8?3:lv>=7?2:1}}
   },
   { // 2: Nova Bomb
-    id:2,name:'NOVA BOMB',icon:'💣',col:'#ffaa00',
+    id:2,name:'NOVA BOMB',icon:'💣',col:'#ff8020',
     desc:'Drops explosive charges',
     ld:['Small bomb','More damage','+radius','Faster fuse','+damage','+radius','Chain blast','Mega bomb'],
     maxLv:8,
     stats(lv){return{cd:Math.max(.7,2.6-lv*.22),dmg:35+lv*18,rad:65+lv*12,fuse:Math.max(.25,.85-lv*.06)}}
   },
   { // 3: Chain Bolt
-    id:3,name:'CHAIN BOLT',icon:'🔗',col:'#66ccff',
+    id:3,name:'CHAIN BOLT',icon:'🔗',col:'#40ff80',
     desc:'Lightning that chains between enemies',
     ld:['2 bounces','3 bounces','+damage','4 bounces','Faster','5 bounces','+range','6 bounces MAX'],
     maxLv:8,
     stats(lv){return{cd:Math.max(.28,1.1-lv*.1),dmg:14+lv*8,bounces:2+Math.floor(lv*.65),rng:150+lv*18}}
   },
   { // 4: Shadow Orbs
-    id:4,name:'SHADOW ORBS',icon:'🌑',col:'#ffee00',
+    id:4,name:'SHADOW ORBS',icon:'🌑',col:'#ffcc00',
     desc:'Orbiting damage spheres',
     ld:['2 orbs','3 orbs','+damage','4 orbs','+size','5 orbs','6 orbs','7 orbs MAX'],
     maxLv:8,
     stats(lv){return{cnt:2+Math.floor(lv*.72),dps:10+lv*6,orbitR:68+lv*5,rotSpd:1.9+lv*.18,sz:9+lv*1.6}}
   },
   { // 5: Gravity Vortex
-    id:5,name:'GRAVITY VORTEX',icon:'🌀',col:'#ee66ff',
+    id:5,name:'GRAVITY VORTEX',icon:'🌀',col:'#ff40a0',
     desc:'Pulls and damages nearby enemies',
     ld:['Small vortex','+pull','+radius','+damage','Wider area','+force','Large field','MAX PULL'],
     maxLv:8,
@@ -727,10 +727,10 @@ function spawnKeyGuards(g,k){
 // CHAIN BOLT HELPER
 // ═══════════════════════════════════════════
 function chainBolt(g,fx,fy,target,bounces,range,dmg,hit){
-  g.bolts.push({x1:fx,y1:fy,x2:target.x,y2:target.y,life:.18,ml:.18,col:'#66ccff'});
+  g.bolts.push({x1:fx,y1:fy,x2:target.x,y2:target.y,life:.18,ml:.18,col:'#40ff80'});
   const d=Math.max(1,dmg-hit.length*4);
   target.hp-=d;target.flash=.12;
-  spawnParts(target.x,target.y,5,'#66ccff',90,.3,3);
+  spawnParts(target.x,target.y,5,'#40ff80',90,.3,3);
   spawnNum(target.x,target.y-target.sz,d);
   g.totalDmg+=d;
   if(bounces>0){
@@ -864,7 +864,7 @@ function update(g,dt){
           const a=(i/ws.cnt)*PI2;
           g.projs.push({x:p.x,y:p.y,vx:Math.cos(a)*ws.spd,vy:Math.sin(a)*ws.spd,
             dmg:ws.dmg*ps.dmgMult,sz:ws.sz,pierce:ws.pierce,pc:0,
-            col:'#dd99ff',glow:'#bb66ee',life:ws.life,ml:ws.life,wid:0});
+            col:'#a060ff',glow:'#7040cc',life:ws.life,ml:ws.life,wid:0});
         }
       }
     }else if(w.id===1){// Laser Whip - angle only updated here
@@ -1263,7 +1263,7 @@ function draw(g){
     const ws=WDEFS[5].stats(gv.lv);
     for(let r=0;r<3;r++){
       const rad=ws.rad*(r*.3+.4);
-      ctx.strokeStyle=`rgba(238,102,255,${.28-r*.07})`;ctx.lineWidth=2;
+      ctx.strokeStyle=`rgba(255,64,160,${.28-r*.07})`;ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(p.x,p.y,rad+Math.sin(now*3+r)*5,0,PI2);ctx.stroke();
     }
   }
