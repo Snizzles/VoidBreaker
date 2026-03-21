@@ -138,7 +138,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.8.1</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.3</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -341,6 +341,7 @@ function inputDir(){
 let parts=[];
 const MAX_PARTS=500;
 const MAX_ENEMIES=500;
+const MAX_GEMS=500;
 let nums=[];
 const MAX_NUMS=150;
 function spawnParts(x,y,n,col,spd=120,life=.5,sz=3){
@@ -410,7 +411,7 @@ function drawFlash(){
 // BACKGROUND STARS
 // ═══════════════════════════════════════════
 const STARS=[];
-for(let i=0;i<110;i++)STARS.push({x:rnd(-4000,4000),y:rnd(-4000,4000),sz:rnd(.4,2.4),spd:rnd(.08,.45)});
+for(let i=0;i<110;i++)STARS.push({x:rnd(-4000,4000),y:rnd(-4000,4000),sz:rnd(.4,2.4),spd:rnd(.08,.45),phase:rnd(0,PI2),freq:rnd(.3,1.5)});
 
 function drawBg(){
   const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H));
@@ -419,7 +420,7 @@ function drawBg(){
   for(const s of STARS){
     const sx=((s.x-camX*s.spd)%W+W*3)%W;
     const sy=((s.y-camY*s.spd)%H+H*3)%H;
-    ctx.globalAlpha=rnd(.25,.95);ctx.fillStyle='#fff';
+    ctx.globalAlpha=.3+Math.sin(performance.now()/1000*s.freq+s.phase)*.35+.35;ctx.fillStyle='#fff';
     ctx.beginPath();ctx.arc(sx,sy,s.sz,0,PI2);ctx.fill();
   }
   ctx.globalAlpha=1;
@@ -703,9 +704,9 @@ function spawnKeyGuards(g,k){
   const bScale=Math.min(1+g.time/33,12);
   brute.maxHp=brute.hp*bScale;brute.hp=brute.maxHp;
   brute.dmg=brute.dmg*dmgScale;brute.flash=0;brute.tpTimer=rnd(3,7);brute.leapTimer=rnd(1.5,3);
-  g.enemies.push(brute);
+  if(g.enemies.length<MAX_ENEMIES)g.enemies.push(brute);
   // 6 mixed Crawlers/Swarm in a ring around the key
-  for(let i=0;i<6;i++){
+  for(let i=0;i<6&&g.enemies.length<MAX_ENEMIES;i++){
     const a=(i/6)*PI2;
     const rd=rnd(40,80);
     const tid=Math.random()<.5?0:4;
@@ -735,7 +736,7 @@ function chainBolt(g,fx,fy,target,bounces,range,dmg,hit){
       const dd2=dist(target,e);
       if(dd2<range&&dd2<nd){nd=dd2;next=e}
     }
-    if(next)setTimeout(()=>{if(g.state==='playing')chainBolt(g,target.x,target.y,next,bounces-1,range,dmg,[...hit,next])},55);
+    if(next)setTimeout(()=>{if(g.state==='playing'&&next.hp>0)chainBolt(g,target.x,target.y,next,bounces-1,range,dmg,[...hit,next])},55);
   }
 }
 
@@ -752,7 +753,7 @@ function explode(g,b){
       const dmg=b.dmg*(1-(d/b.rad)*.5);
       e.hp-=dmg;e.flash=.18;
       spawnNum(e.x,e.y-e.sz,dmg);
-      G.totalDmg+=dmg;
+      g.totalDmg+=dmg;
     }
   }
 }
@@ -826,12 +827,11 @@ function update(g,dt){
     if(g.voidEndTimer<=0){g.voidBeastPhase='defeated';g.state='win';endScreen(g,true);}
     return;
   }
-  if(g.voidBeastPhase==='defeated'){g.state='win';endScreen(g,true);return}
-  // Lose at 10 min if not escaped (Sidney Mode has no timer)
-  if(g.time>=600&&!g.diff.noTimer){g.state='dead';endScreen(g,false);return}
+  // Lose at 10 min if not escaped (Sidney Mode and post-win have no timer)
+  if(g.time>=600&&!g.diff.noTimer&&g.voidBeastPhase!=='cleared'){g.state='dead';endScreen(g,false);return}
 
   // Boss trigger — only while Void Beast fight is not underway (Sidney Mode skips bosses)
-  if(g.time>=g.nextBoss&&g.voidBeastPhase===null&&!g.diff.noBosses){
+  if(g.time>=g.nextBoss&&(g.voidBeastPhase===null||g.voidBeastPhase==='cleared')&&!g.diff.noBosses){
     g.nextBoss+=120;
     spawnBoss(g);
   }
@@ -903,7 +903,7 @@ function update(g,dt){
         let diff=Math.abs(ea-la)%PI2;if(diff>Math.PI)diff=PI2-diff;
         const thresh=Math.atan2(ws.wid*.5,Math.max(d,1))+.18;
         if(diff<thresh){
-          const dmg=dps*dt;e.hp-=dmg;e.flash=.04;G.totalDmg+=dmg;
+          const dmg=dps*dt;e.hp-=dmg;e.flash=.04;g.totalDmg+=dmg;
           if(Math.random()<.08)spawnParts(e.x,e.y,1,'#00ccff',40,.2,2);
         }
       }
@@ -922,7 +922,7 @@ function update(g,dt){
         const a=(ow.angle||0)+(i/ws.cnt)*PI2;
         const ox=p.x+Math.cos(a)*ws.orbitR,oy=p.y+Math.sin(a)*ws.orbitR;
         if(dist2({x:ox,y:oy},e)<(ws.sz+e.sz)*(ws.sz+e.sz)){
-          const dmg=dps*dt;e.hp-=dmg;e.flash=.05;G.totalDmg+=dmg;
+          const dmg=dps*dt;e.hp-=dmg;e.flash=.05;g.totalDmg+=dmg;
         }
       }
     }
@@ -939,8 +939,9 @@ function update(g,dt){
       if(d2<rad2){
         const d=Math.sqrt(d2);
         const a=angle(e,p),force=ws.pull*(1-d/ws.rad);
-        e.x+=Math.cos(a)*force*dt;e.y+=Math.sin(a)*force*dt;
-        const dmg=dps*dt;e.hp-=dmg;G.totalDmg+=dmg;
+        const pullDist=Math.min(force*dt,Math.max(0,d-(e.sz+13)));
+        e.x+=Math.cos(a)*pullDist;e.y+=Math.sin(a)*pullDist;
+        const dmg=dps*dt;e.hp-=dmg;g.totalDmg+=dmg;
       }
     }
   }
@@ -957,7 +958,7 @@ function update(g,dt){
         e.hp-=pr.dmg;e.flash=.12;
         spawnParts(pr.x,pr.y,6,pr.col,90,.3,3.5);
         spawnNum(e.x,e.y-e.sz,pr.dmg);
-        G.totalDmg+=pr.dmg;
+        g.totalDmg+=pr.dmg;
         pr.pc++;
         if(pr.pc>=pr.pierce){g.projs.splice(i,1);dead=true;break}
       }
@@ -1055,7 +1056,7 @@ function update(g,dt){
     // Death
     if(e.hp<=0){
       const gc=e.boss?18:1,xg=e.xp/gc;
-      for(let gi=0;gi<gc;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
+      for(let gi=0;gi<gc&&g.gems.length<MAX_GEMS;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
         sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffdd00':(e.xp>5?'#80ff40':'#40ffb0')});
       if(Math.random()<(e.boss?.85:g.diff.heartChance))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?g.diff.heartHealBoss:g.diff.heartHeal});
       // Juicy death particles
@@ -1074,7 +1075,7 @@ function update(g,dt){
       // Combo system
       g.combo++;g.comboTimer=2.2;
       if(g.combo>g.comboMax)g.comboMax=g.combo;
-      g.kills++;g.score+=e.sc*(g.combo>=3?1+g.combo*.1:1);
+      g.kills++;g.score+=e.sc*Math.min(10,g.combo>=3?1+g.combo*.1:1);
       g.enemies.splice(i,1);continue;
     }
 
@@ -1091,7 +1092,6 @@ function update(g,dt){
   if(g.bossActive){
     const pct=Math.max(0,(g.bossActive.hp/g.bossActive.maxHp)*100);
     document.getElementById('boss-bar-fill').style.width=pct+'%';
-    if(g.bossActive.hp<=0){document.getElementById('boss-wrap').style.display='none';g.bossActive=null}
   }
 
   // ── GEMS ──
@@ -1132,12 +1132,12 @@ function update(g,dt){
     }
   }
 
-  // ── XP MAGNET DROPS (1-2 per game) ──
-  if(g.magnetCount<2&&g.time>=g.magnetNext){
+  // ── XP MAGNET DROPS (1-2 per game; unlimited in Sidney Mode) ──
+  if((g.magnetCount<2||g.diff.noTimer)&&g.time>=g.magnetNext){
     g.magnetCount++;
     const ma=Math.random()*PI2,md=rnd(150,320);
     g.magnets.push({x:p.x+Math.cos(ma)*md,y:p.y+Math.sin(ma)*md});
-    if(g.magnetCount===1)g.magnetNext=g.time+rnd(180,300);
+    g.magnetNext=g.time+rnd(120,240);
   }
   for(let i=g.magnets.length-1;i>=0;i--){
     if(dist2(p,g.magnets[i])<28*28){
@@ -1198,6 +1198,7 @@ function draw(g){
       ctx.beginPath();ctx.arc(gem.x,gem.y+2,hs*.7,0,PI2);ctx.fill();
       ctx.font=`${hs}px serif`;ctx.textAlign='center';
       ctx.fillStyle='#ff6080';ctx.fillText('♥',gem.x,gem.y+5);
+      ctx.textAlign='left';
     }else{
       const sz=gem.sz*1.9*pulse;
       // Outer glow (layered circles replace shadowBlur)
@@ -1585,7 +1586,8 @@ function updateHUD(g){
   const xpPct=Math.min(100,(p.xp/p.xpNext)*100);
   const fill=document.getElementById('xp-fill');
   fill.style.width=xpPct+'%';
-  // Pulse bar when XP increases
+  // Pulse bar when XP increases (reset tracking on level-up wrap)
+  if(xpPct<lastXPPct)lastXPPct=0;
   if(xpPct>lastXPPct){fill.classList.remove('xp-pop');void fill.offsetWidth;fill.classList.add('xp-pop')}
   lastXPPct=xpPct;
   document.getElementById('xp-label').textContent=`${Math.floor(p.xp)} / ${p.xpNext} XP  ·  next level up`;
@@ -1598,7 +1600,11 @@ function updateHUD(g){
   document.getElementById('h-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('hp-fill').style.width=(p.hp/p.maxHp)*100+'%';
   const wh=document.getElementById('weapons-hud');
-  wh.innerHTML=p.weapons.map(w=>`<div class="wslot">${WDEFS[w.id].icon} ${WDEFS[w.id].name} <span style="color:#ffdd22">Lv${w.lv}</span></div>`).join('');
+  const weaponKey=p.weapons.map(w=>w.id+':'+w.lv).join(',');
+  if(wh.dataset.last!==weaponKey){
+    wh.innerHTML=p.weapons.map(w=>`<div class="wslot">${WDEFS[w.id].icon} ${WDEFS[w.id].name} <span style="color:#ffdd22">Lv${w.lv}</span></div>`).join('');
+    wh.dataset.last=weaponKey;
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1791,7 +1797,7 @@ function endScreen(g,won){
   stats.style.display='block';
   const achCount=unlockedAch.size,achTotal=ACHIEVEMENTS.length;
   stats.innerHTML=`Difficulty: <span class="sh" style="color:${g.diff.col}">${g.diff.label}</span><br>
-    Keys: <span class="sh">🔑 ${keysGot}/3</span><br>
+    ${g.diff.noBosses?'':`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>`}
     Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
     Level: <span class="sh">${g.p.lv}</span><br>
@@ -1853,6 +1859,8 @@ function resumeGame(){
 function continueGame(){
   if(!G)return;
   if(G.voidBeastPhase==='defeated')G.voidBeastPhase='cleared';
+  // Re-enable boss spawning and schedule next boss 2 min from now
+  G.nextBoss=G.time+120;
   G.state='playing';
   document.getElementById('overlay').classList.add('hidden');
   jZone.style.pointerEvents='';

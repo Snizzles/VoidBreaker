@@ -153,11 +153,12 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.9.3 | Bug fix pass: Continue Playing no longer kills at 10:00; bosses re-spawn after winning; version display corrected; combo score cap (10×); gems array bounded; Gravity Vortex no longer pulls enemies through player; Sidney Mode gets unlimited XP magnets and hides keys on end screen; star twinkle smoothed; weapons HUD cached; XP bar animation fixed on level-up; chain bolt validates targets; dead code removed |
 | v1.9.2 | Sidney Mode: no keys, no Void Gate, no boss references — pure survival sandbox; XP Magnet pickup added (drops 1-2×/run, pulls all gems to player for 5s) |
 | v1.9.1 | Sidney Mode: Easy stats, no time limit, no bosses — select at difficulty picker |
 | v1.9.0 | Fix: game now playable after defeating Void Beast (Continue Playing no longer loops back to end screen); achievements panel added to pause screen showing unlocked/locked status for all 35 achievements |
 | v1.8.1 | Void Beast bolt count scaled by difficulty (3/5/7 per burst); Easy Void Beast HP cut to 100K; iOS touch zone expanded to full screen; key counter moved to HUD; level-up now offers 4 cards (3 random + heal); Chain Bolt damage numbers no longer green |
-| v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 200 |
+| v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 500 |
 | v1.7.0 | Achievements (13 badges, localStorage-persistent, in-game toast notifications); Void Beast massively buffed; Continue Playing button on win screen |
 | v1.6.0 | Void Gate + Void Beast final boss; ESC pause menu; phantom teleport distance fix |
 | v1.5.0 | Key difficulty rebalance: keys spawn 3× further out (1800-2800px); guardian enemies (elite Brute + Crawler/Swarm cluster) spawn to defend each key on approach |
