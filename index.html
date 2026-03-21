@@ -340,7 +340,7 @@ function inputDir(){
 // ═══════════════════════════════════════════
 let parts=[];
 const MAX_PARTS=500;
-const MAX_ENEMIES=200;
+const MAX_ENEMIES=500;
 let nums=[];
 const MAX_NUMS=150;
 function spawnParts(x,y,n,col,spd=120,life=.5,sz=3){
@@ -904,10 +904,12 @@ function update(g,dt){
   if(ow){
     const ws=WDEFS[4].stats(ow.lv);
     const dps=ws.dps*ps.dmgMult;
-    for(let i=0;i<ws.cnt;i++){
-      const a=(ow.angle||0)+(i/ws.cnt)*PI2;
-      const ox=p.x+Math.cos(a)*ws.orbitR,oy=p.y+Math.sin(a)*ws.orbitR;
-      for(const e of g.enemies){
+    const coarse2=(ws.orbitR+ws.sz+30)*(ws.orbitR+ws.sz+30);
+    for(const e of g.enemies){
+      if(dist2(p,e)>coarse2)continue;// skip enemies too far to be hit by any orb
+      for(let i=0;i<ws.cnt;i++){
+        const a=(ow.angle||0)+(i/ws.cnt)*PI2;
+        const ox=p.x+Math.cos(a)*ws.orbitR,oy=p.y+Math.sin(a)*ws.orbitR;
         if(dist2({x:ox,y:oy},e)<(ws.sz+e.sz)*(ws.sz+e.sz)){
           const dmg=dps*dt;e.hp-=dmg;e.flash=.05;G.totalDmg+=dmg;
         }
