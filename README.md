@@ -136,7 +136,7 @@ Choose your challenge at the start of each run:
 | Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 50,000 (3 bolts/burst) |
 | Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 (5 bolts/burst) |
 | Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 (7 bolts/burst) |
-| Sidney | 150 | Slow (cap 3×) | 10% chance, 28 HP | — no bosses, no timer — |
+| Sidney Mode | 150 | Slow (cap 3×) | 10% chance, 28 HP | — no bosses, no timer — |
 
 ---
 
@@ -144,7 +144,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
-| v1.9.1 | Sidney Mode: Easy stats, no time limit, no bosses — select at run start |
+| v1.9.1 | Sidney Mode: Easy stats, no time limit, no bosses — select at difficulty picker |
 | v1.9.0 | Fix: game now playable after defeating Void Beast (Continue Playing no longer loops back to end screen); achievements panel added to pause screen showing unlocked/locked status for all 35 achievements |
 | v1.8.1 | Void Beast bolt count scaled by difficulty (3/5/7 per burst); Easy Void Beast HP cut to 100K; iOS touch zone expanded to full screen; key counter moved to HUD; level-up now offers 4 cards (3 random + heal); Chain Bolt damage numbers no longer green |
 | v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 200 |
