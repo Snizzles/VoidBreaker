@@ -452,7 +452,7 @@ const WDEFS=[
     stats(lv){return{len:90+lv*22,wid:4+lv,dps:18+lv*9,rotSpd:1.6+lv*.2,cnt:lv>=8?3:lv>=7?2:1}}
   },
   { // 2: Nova Bomb
-    id:2,name:'NOVA BOMB',icon:'💣',col:'#ff8020',
+    id:2,name:'NOVA BOMB',icon:'💣',col:'#ffaa00',
     desc:'Drops explosive charges',
     ld:['Small bomb','More damage','+radius','Faster fuse','+damage','+radius','Chain blast','Mega bomb'],
     maxLv:8,
@@ -509,17 +509,17 @@ const PDEFS=[
 // ENEMY TYPES
 // ═══════════════════════════════════════════
 const ETYPES=[
-  {id:0,name:'CRAWLER',  col:'#cc3030',glow:'#881010',hp:22, spd:62, dmg:8, sz:10,xp:2, sc:10},
-  {id:1,name:'DARTER',   col:'#cc7020',glow:'#884010',hp:15, spd:115,dmg:6, sz:8, xp:3, sc:15},
-  {id:2,name:'BRUTE',    col:'#8833aa',glow:'#551880',hp:90, spd:38, dmg:20,sz:19,xp:8, sc:40},
-  {id:3,name:'PHANTOM',  col:'#3399aa',glow:'#206670',hp:50, spd:52, dmg:12,sz:13,xp:6, sc:30,tp:true},
-  {id:4,name:'SWARM',    col:'#bb3050',glow:'#801530',hp:9,  spd:78, dmg:4, sz:6, xp:1, sc:5},
-  {id:5,name:'LEAPER',   col:'#bbaa20',glow:'#887010',hp:35, spd:90, dmg:14,sz:11,xp:5, sc:25,leaper:true},
+  {id:0,name:'CRAWLER',  col:'#dd2020',glow:'#991010',hp:22, spd:62, dmg:8, sz:10,xp:2, sc:10},
+  {id:1,name:'DARTER',   col:'#ff4040',glow:'#cc2020',hp:15, spd:115,dmg:6, sz:8, xp:3, sc:15},
+  {id:2,name:'BRUTE',    col:'#881515',glow:'#550808',hp:90, spd:38, dmg:20,sz:19,xp:8, sc:40},
+  {id:3,name:'PHANTOM',  col:'#cc4444',glow:'#882222',hp:50, spd:52, dmg:12,sz:13,xp:6, sc:30,tp:true},
+  {id:4,name:'SWARM',    col:'#ee2233',glow:'#aa1122',hp:9,  spd:78, dmg:4, sz:6, xp:1, sc:5},
+  {id:5,name:'LEAPER',   col:'#dd3300',glow:'#991800',hp:35, spd:90, dmg:14,sz:11,xp:5, sc:25,leaper:true},
 ];
 const BTYPES=[
-  {id:10,name:'VOID TITAN',    col:'#cc2060',glow:'#881040',hp:900,  spd:33,dmg:32,sz:42,xp:120,sc:600,boss:true},
-  {id:11,name:'ECLIPSE HORROR',col:'#7744aa',glow:'#442266',hp:700,  spd:52,dmg:26,sz:36,xp:90, sc:450,boss:true,tp:true},
-  {id:12,name:'SINGULARITY',   col:'#2288aa',glow:'#105566',hp:1400, spd:26,dmg:42,sz:52,xp:180,sc:900,boss:true},
+  {id:10,name:'VOID TITAN',    col:'#cc0033',glow:'#880022',hp:900,  spd:33,dmg:32,sz:42,xp:120,sc:600,boss:true},
+  {id:11,name:'ECLIPSE HORROR',col:'#dd1144',glow:'#990033',hp:700,  spd:52,dmg:26,sz:36,xp:90, sc:450,boss:true,tp:true},
+  {id:12,name:'SINGULARITY',   col:'#990020',glow:'#660010',hp:1400, spd:26,dmg:42,sz:52,xp:180,sc:900,boss:true},
 ];
 
 // ═══════════════════════════════════════════
@@ -1057,7 +1057,7 @@ function update(g,dt){
     if(e.hp<=0){
       const gc=e.boss?18:1,xg=e.xp/gc;
       for(let gi=0;gi<gc&&g.gems.length<MAX_GEMS;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
-        sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffee22':(e.xp>5?'#44ff44':'#22ddbb')});
+        sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffff44':(e.xp>5?'#66ff66':'#44ffdd')});
       if(Math.random()<(e.boss?.85:g.diff.heartChance))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?g.diff.heartHealBoss:g.diff.heartHeal});
       // Juicy death particles
       spawnParts(e.x,e.y,e.boss?60:20,e.col,e.boss?220:180,.8,e.sz*.6);
@@ -1201,23 +1201,16 @@ function draw(g){
       ctx.textAlign='left';
     }else{
       const sz=gem.sz*1.9*pulse;
-      // Outer glow (layered circles replace shadowBlur)
-      ctx.fillStyle=gem.col+'22';
-      ctx.beginPath();ctx.arc(gem.x,gem.y,sz*2,0,PI2);ctx.fill();
-      ctx.fillStyle=gem.col+'44';
-      ctx.beginPath();ctx.arc(gem.x,gem.y,sz*1.4,0,PI2);ctx.fill();
-      // Gem body (spinning diamond)
+      // Gem body (spinning diamond — no circular glow to avoid looking like enemies)
       ctx.fillStyle=gem.col;
-      ctx.save();ctx.translate(gem.x,gem.y);ctx.rotate(now*2+gem.x*.01);
+      ctx.save();ctx.translate(gem.x,gem.y);ctx.rotate(now*3+gem.x*.01);
       ctx.beginPath();
-      ctx.moveTo(0,-sz);ctx.lineTo(sz*.6,0);ctx.lineTo(0,sz);ctx.lineTo(-sz*.6,0);
+      ctx.moveTo(0,-sz);ctx.lineTo(sz*.55,0);ctx.lineTo(0,sz);ctx.lineTo(-sz*.55,0);
       ctx.closePath();ctx.fill();
-      // Bright core
+      // Bright white core
       ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.arc(0,0,sz*.3,0,PI2);ctx.fill();
+      ctx.beginPath();ctx.arc(0,0,sz*.25,0,PI2);ctx.fill();
       ctx.restore();
-      // Occasional sparkle
-      if(Math.random()<.04)spawnParts(gem.x+rnd(-6,6),gem.y+rnd(-6,6),1,gem.col,30,.4,2);
     }
   }
 
@@ -1329,9 +1322,9 @@ function draw(g){
     if(e.x<cullL||e.x>cullR||e.y<cullT||e.y>cullB)continue;
     const fl=e.flash>0;
     if(e.boss){
-      // Manual glow behind boss
-      ctx.fillStyle=fl?'rgba(255,255,255,.2)':e.glow+'40';
-      ctx.beginPath();ctx.arc(e.x,e.y,e.sz*1.4,0,PI2);ctx.fill();
+      // Boss outline ring
+      ctx.strokeStyle=fl?'#ffffff':e.col;ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.sz+5,0,PI2);ctx.stroke();
       ctx.fillStyle=fl?'#ffffff':e.col;
       ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot||0);
       ctx.beginPath();
@@ -1348,14 +1341,17 @@ function draw(g){
       ctx.fillStyle='#ff2050';ctx.fillRect(e.x-bw/2,e.y-e.sz-16,bw*(e.hp/e.maxHp),7);
       ctx.strokeStyle='#550020';ctx.lineWidth=1;ctx.strokeRect(e.x-bw/2,e.y-e.sz-16,bw,7);
     }else{
-      // Manual glow behind enemy (replaces shadowBlur)
-      ctx.fillStyle=fl?'rgba(255,255,255,.22)':e.glow+'44';
-      ctx.beginPath();ctx.arc(e.x,e.y,e.sz*1.6,0,PI2);ctx.fill();
+      // Enemy body with hard outline ring
+      ctx.strokeStyle=fl?'#ffffff':e.col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(e.x,e.y,e.sz+3,0,PI2);ctx.stroke();
       ctx.fillStyle=fl?'#ffffff':e.col;
       ctx.beginPath();ctx.arc(e.x,e.y,e.sz,0,PI2);ctx.fill();
+      // Dark inner shading
+      ctx.fillStyle='rgba(0,0,0,.3)';
+      ctx.beginPath();ctx.arc(e.x,e.y,e.sz*.7,0,PI2);ctx.fill();
       // Eye
-      ctx.fillStyle='#000';ctx.beginPath();ctx.arc(e.x+e.sz*.3,e.y-e.sz*.2,e.sz*.26,0,PI2);ctx.fill();
-      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(e.x+e.sz*.32,e.y-e.sz*.22,e.sz*.11,0,PI2);ctx.fill();
+      ctx.fillStyle='#111';ctx.beginPath();ctx.arc(e.x+e.sz*.3,e.y-e.sz*.2,e.sz*.28,0,PI2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(e.x+e.sz*.32,e.y-e.sz*.22,e.sz*.12,0,PI2);ctx.fill();
     }
   }
 
