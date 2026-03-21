@@ -552,6 +552,16 @@ const DIFFS={
     spawnMin:.25,
     voidHp:1000000,voidBoltDmg:42,voidBoltMin:0.5,voidBoltMax:1.0,voidBoltCount:7,
   },
+  sidney:{
+    label:'SIDNEY',col:'#00ddff',
+    desc:'No time limit, no bosses. Relax and build.',
+    startHp:150,
+    heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
+    hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
+    spawnMin:.5,
+    voidHp:50000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
+    noBosses:true,noTimer:true,
+  },
 };
 
 // ═══════════════════════════════════════════
@@ -786,7 +796,7 @@ function update(g,dt){
   if(g.voidBeastPhase!=='active')g.time+=dt;
 
   // Void Gate: player must return to origin with all keys
-  if(g.keysCollected&&g.voidBeastPhase===null&&dist2(p,{x:0,y:0})<3600){
+  if(g.keysCollected&&g.voidBeastPhase===null&&!g.diff.noBosses&&dist2(p,{x:0,y:0})<3600){
     g.voidBeastPhase='countdown';
     g.voidBeastCountdown=5;
     shake(8);flashScreen('#ffcc00',.3);
@@ -816,11 +826,11 @@ function update(g,dt){
     return;
   }
   if(g.voidBeastPhase==='defeated'){g.state='win';endScreen(g,true);return}
-  // Lose at 10 min if not escaped
-  if(g.time>=600){g.state='dead';endScreen(g,false);return}
+  // Lose at 10 min if not escaped (Sidney Mode has no timer)
+  if(g.time>=600&&!g.diff.noTimer){g.state='dead';endScreen(g,false);return}
 
-  // Boss trigger — only while Void Beast fight is not underway
-  if(g.time>=g.nextBoss&&g.voidBeastPhase===null){
+  // Boss trigger — only while Void Beast fight is not underway (Sidney Mode skips bosses)
+  if(g.time>=g.nextBoss&&g.voidBeastPhase===null&&!g.diff.noBosses){
     g.nextBoss+=120;
     spawnBoss(g);
   }
@@ -1741,7 +1751,7 @@ function endScreen(g,won){
   const m=Math.floor(g.time/60),s=Math.floor(g.time%60);
   const ts=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const keysGot=g.keys.filter(k=>k.collected).length;
-  const timedOut=!won&&g.time>=600;
+  const timedOut=!won&&g.time>=600&&!g.diff.noTimer;
   title.textContent=won?'✦ VOID ESCAPED ✦':timedOut?'✗ CONSUMED BY THE VOID ✗':'✗ DEFEATED ✗';
   title.style.color=won?'#00ffdd':'#ff4060';
   title.style.textShadow=won?'0 0 20px #00ffaa,0 0 50px #0088cc':'0 0 20px #ff0000';

@@ -67,7 +67,7 @@ This document tracks planned features, improvements, and long-term design goals.
 ## Long-Term (v3.x+)
 
 ### Game Modes
-- [ ] **Sidney Mode** — Easy difficulty with no time limit and no boss spawns; relaxed exploration for players who want to grind builds without pressure
+- [x] **Sidney Mode** — Easy difficulty with no time limit and no boss spawns; relaxed exploration for players who want to grind builds without pressure (v1.9.1)
 - [ ] **Endless mode** — no key/timer win condition; pure score chase with a global leaderboard
 - [ ] **Challenge runs** — pre-set loadouts with specific win conditions ("Survive 5 minutes with only Shadow Orbs and no passives")
 - [ ] **Daily run** — seeded random loadout that resets every 24h, shared score board
