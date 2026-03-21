@@ -595,6 +595,7 @@ function mkGame(){
     voidBeastCountdown:0,voidEndTimer:0,
     voidBolts:[],
     xpVacuumTimer:0,
+    magnets:[],magnetNext:rnd(120,240),magnetCount:0,// XP magnet drops
   };
 }
 
@@ -1131,6 +1132,23 @@ function update(g,dt){
     }
   }
 
+  // ── XP MAGNET DROPS (1-2 per game) ──
+  if(g.magnetCount<2&&g.time>=g.magnetNext){
+    g.magnetCount++;
+    const ma=Math.random()*PI2,md=rnd(150,320);
+    g.magnets.push({x:p.x+Math.cos(ma)*md,y:p.y+Math.sin(ma)*md});
+    if(g.magnetCount===1)g.magnetNext=g.time+rnd(180,300);
+  }
+  for(let i=g.magnets.length-1;i>=0;i--){
+    if(dist2(p,g.magnets[i])<28*28){
+      g.magnets.splice(i,1);
+      g.xpVacuumTimer=5;
+      shake(5);flashScreen('#ff50dc',.35);
+      spawnNum(p.x,p.y-24,0,'#ff80ff');
+      if(nums.length>0){nums[nums.length-1].txt='XP MAGNET!';nums[nums.length-1].sz=18;nums[nums.length-1].life=1.4;nums[nums.length-1].ml=1.4}
+    }
+  }
+
   // ── SPAWNING ──
   g.spawnT-=dt;
   if(g.spawnT<=0){
@@ -1355,8 +1373,8 @@ function draw(g){
     ctx.beginPath();ctx.arc(p.x,p.y,4.5,0,PI2);ctx.fill();
   }
 
-  // ── KEYS (world space) ──
-  for(const k of g.keys){
+  // ── KEYS (world space) — hidden in Sidney Mode ──
+  for(const k of g.diff.noBosses?[]:g.keys){
     if(k.collected)continue;
     const kpulse=.6+Math.sin(k.pulse*4)*.4;
     // Outer glow
@@ -1374,8 +1392,22 @@ function draw(g){
     ctx.restore();
   }
 
-  // ── VOID GATE (world origin) ──
-  if(g.voidBeastPhase!=='active'){
+  // ── XP MAGNETS (world space) ──
+  for(const m of g.magnets){
+    const mp=.5+Math.sin(now*3+m.x)*.5;
+    ctx.fillStyle=`rgba(255,80,220,${.1*mp})`;
+    ctx.beginPath();ctx.arc(m.x,m.y,30,0,PI2);ctx.fill();
+    ctx.fillStyle=`rgba(255,80,220,${.25*mp})`;
+    ctx.beginPath();ctx.arc(m.x,m.y,18,0,PI2);ctx.fill();
+    ctx.fillStyle=`rgba(255,140,240,${.85+mp*.15})`;
+    ctx.beginPath();ctx.arc(m.x,m.y,9,0,PI2);ctx.fill();
+    ctx.fillStyle='#ffffff';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+    ctx.fillText('◆',m.x,m.y+4);
+    ctx.textAlign='left';
+  }
+
+  // ── VOID GATE (world origin) — hidden in Sidney Mode ──
+  if(!g.diff.noBosses&&g.voidBeastPhase!=='active'){
     const gateX=0,gateY=0;
     if(g.keysCollected&&g.voidBeastPhase===null){
       // Active: bright glowing portal
@@ -1410,8 +1442,8 @@ function draw(g){
   // ── SCREEN FLASH (drawn after restore, in screen space) ──
   drawFlash();
 
-  // ── OFF-SCREEN KEY INDICATORS (screen space) ──
-  for(const k of g.keys){
+  // ── OFF-SCREEN KEY INDICATORS (screen space) — hidden in Sidney Mode ──
+  for(const k of g.diff.noBosses?[]:g.keys){
     if(k.collected)continue;
     const sx=k.x-cx,sy=k.y-cy;
     // Check if on screen (with margin)
@@ -1433,8 +1465,8 @@ function draw(g){
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
-  // ── VOID GATE OFF-SCREEN INDICATOR ──
-  if(g.keysCollected&&g.voidBeastPhase===null){
+  // ── VOID GATE OFF-SCREEN INDICATOR — hidden in Sidney Mode ──
+  if(!g.diff.noBosses&&g.keysCollected&&g.voidBeastPhase===null){
     const gsx=0-cx,gsy=0-cy;
     if(gsx<20||gsx>W-20||gsy<20||gsy>H-20){
       const gang=Math.atan2(gsy-H/2,gsx-W/2);
@@ -1559,9 +1591,9 @@ function updateHUD(g){
   document.getElementById('xp-label').textContent=`${Math.floor(p.xp)} / ${p.xpNext} XP  ·  next level up`;
   document.getElementById('h-lvl').textContent='LVL '+p.lv;
   document.getElementById('h-kills').textContent=g.kills+' ☠';
-  const kc=g.keys.filter(k=>k.collected).length;
   const hk=document.getElementById('h-keys');
-  hk.textContent=`🔑 ${kc}/3`;hk.style.color=kc>=3?'#00ff88':'#00ffff';
+  if(g.diff.noBosses){hk.style.display='none';}
+  else{hk.style.display='';const kc=g.keys.filter(k=>k.collected).length;hk.textContent=`🔑 ${kc}/3`;hk.style.color=kc>=3?'#00ff88':'#00ffff';}
   const m=Math.floor(g.time/60),s=Math.floor(g.time%60);
   document.getElementById('h-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('hp-fill').style.width=(p.hp/p.maxHp)*100+'%';
@@ -1836,18 +1868,23 @@ function startGame(){
   // Tutorial hint — cancel any previous timers, show for 5s then fade
   hintTimers.forEach(clearTimeout);hintTimers=[];
   const hint=document.getElementById('hint');
+  hint.textContent=selectedDifficulty==='sidney'
+    ?'Kill enemies → collect ◆ gems → level up → survive as long as you can!'
+    :'Collect 3 🔑 keys → return to the Void Gate → defeat the Void Beast to escape!';
   hint.style.display='block';hint.classList.remove('fade');
   hintTimers.push(setTimeout(()=>hint.classList.add('fade'),5000));
   hintTimers.push(setTimeout(()=>hint.style.display='none',6200));
   G=mkGame();
   const hd=document.getElementById('h-diff');
   hd.textContent=G.diff.label;hd.style.color=G.diff.col;
-  // Spawn 3 keys at random angles, spread ~120° apart, distance 1800-2800 from origin
-  const baseAngle=Math.random()*PI2;
-  for(let ki=0;ki<3;ki++){
-    const ka=baseAngle+(ki/3)*PI2+rnd(-.3,.3);
-    const kd=rnd(1800,2800);
-    G.keys.push({x:Math.cos(ka)*kd,y:Math.sin(ka)*kd,collected:false,pulse:0,guardsSpawned:false});
+  // Spawn 3 keys (skipped in Sidney Mode — no keys, no Void Gate)
+  if(!G.diff.noBosses){
+    const baseAngle=Math.random()*PI2;
+    for(let ki=0;ki<3;ki++){
+      const ka=baseAngle+(ki/3)*PI2+rnd(-.3,.3);
+      const kd=rnd(1800,2800);
+      G.keys.push({x:Math.cos(ka)*kd,y:Math.sin(ka)*kd,collected:false,pulse:0,guardsSpawned:false});
+    }
   }
   // Start with the player's chosen weapon
   G.p.weapons.push({id:selectedWeapon,lv:1,timer:0,angle:0});
