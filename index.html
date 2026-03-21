@@ -589,7 +589,7 @@ function mkGame(){
     combo:0,comboTimer:0,comboMax:0,// kill combo system
     bossActive:null,
     pendingLU:0,
-    nextBoss:120,// seconds until next boss
+    nextBoss:90,// seconds until next boss
     keys:[],keysCollected:false,
     bossKills:0,
     voidBeastPhase:null,// null | 'countdown' | 'active' | 'ending' | 'defeated'
@@ -686,7 +686,7 @@ function wt(arr){
 }
 
 function spawnBoss(g){
-  const bt=BTYPES[Math.floor(g.time/120)%BTYPES.length];
+  const bt=BTYPES[Math.floor(g.time/90)%BTYPES.length];
   const a=Math.random()*PI2,d=Math.max(W,H)*.5+120;
   const e={...bt,x:g.p.x+Math.cos(a)*d,y:g.p.y+Math.sin(a)*d,maxHp:bt.hp,flash:0,tpTimer:rnd(4,8),rot:0};
   g.enemies.push(e);
@@ -832,7 +832,7 @@ function update(g,dt){
 
   // Boss trigger — only while Void Beast fight is not underway (Sidney Mode skips bosses)
   if(g.time>=g.nextBoss&&(g.voidBeastPhase===null||g.voidBeastPhase==='cleared')&&!g.diff.noBosses){
-    g.nextBoss+=120;
+    g.nextBoss+=90;
     spawnBoss(g);
   }
 
@@ -1862,7 +1862,7 @@ function continueGame(){
   if(!G)return;
   if(G.voidBeastPhase==='defeated')G.voidBeastPhase='cleared';
   // Re-enable boss spawning and schedule next boss 2 min from now
-  G.nextBoss=G.time+120;
+  G.nextBoss=G.time+90;
   G.state='playing';
   document.getElementById('overlay').classList.add('hidden');
   jZone.style.pointerEvents='';

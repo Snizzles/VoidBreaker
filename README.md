@@ -55,7 +55,7 @@ Each weapon has 8 upgrade levels unlocked through the level-up system.
 | Swarm | Weak but spawns in large numbers |
 | Leaper | Lunges toward the player periodically |
 
-Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singularity**.
+Bosses spawn every 90 seconds: **Void Titan**, **Eclipse Horror**, and **Singularity**.
 
 The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has massive HP and fires spreads of crimson bolts. Defeat it to win — or keep playing after victory for endless mode.
 
