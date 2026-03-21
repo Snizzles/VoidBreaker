@@ -30,6 +30,8 @@ This document tracks planned features, improvements, and long-term design goals.
 
 ### Quality of Life
 - [x] **Achievements** — local badge system (first boss kill, 5-minute survival, ×20 combo, etc.) (v1.7.0)
+- [x] **Achievements on pause screen** — full achievement list with locked/unlocked status visible any time via ESC (v1.9.0)
+- [x] **Continue Playing fix** — game correctly resumes after defeating the Void Beast instead of looping back to the end screen (v1.9.0)
 - [x] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player (v1.8.1)
 - [ ] **Kill counter by enemy type** — end screen breakdown of what you killed
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen
@@ -65,6 +67,7 @@ This document tracks planned features, improvements, and long-term design goals.
 ## Long-Term (v3.x+)
 
 ### Game Modes
+- [ ] **Sidney Mode** — Easy difficulty with no time limit and no boss spawns; relaxed exploration for players who want to grind builds without pressure
 - [ ] **Endless mode** — no key/timer win condition; pure score chase with a global leaderboard
 - [ ] **Challenge runs** — pre-set loadouts with specific win conditions ("Survive 5 minutes with only Shadow Orbs and no passives")
 - [ ] **Daily run** — seeded random loadout that resets every 24h, shared score board

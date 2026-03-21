@@ -174,6 +174,13 @@ canvas{display:block}
     text-shadow:0 0 20px #a060ff,0 0 50px #6030cc;letter-spacing:5px">PAUSED</div>
   <div style="font-size:clamp(11px,1.8vw,17px);color:#7070b0;margin-top:14px">Press ESC to resume</div>
   <button class="btn" id="resume-btn" style="margin-top:24px" onclick="resumeGame()">RESUME</button>
+  <div id="pause-ach-section" style="margin-top:28px;width:min(560px,90vw)">
+    <div style="font-size:clamp(12px,2vw,16px);color:#a080ff;letter-spacing:3px;margin-bottom:10px;text-align:center">
+      ACHIEVEMENTS <span id="pause-ach-count" style="color:#7070b0"></span>
+    </div>
+    <div id="pause-ach-list" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;
+      max-height:38vh;overflow-y:auto;padding-right:4px"></div>
+  </div>
 </div>
 
 <!-- Joystick -->
@@ -282,7 +289,7 @@ window.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
   if(e.code==='Escape'&&G){
-    if(G.state==='playing'){G.state='paused';document.getElementById('pause-overlay').classList.remove('hidden');jZone.style.pointerEvents='none'}
+    if(G.state==='playing'){G.state='paused';buildPauseAchievements();document.getElementById('pause-overlay').classList.remove('hidden');jZone.style.pointerEvents='none'}
     else if(G.state==='paused'){resumeGame()}
   }
 });
@@ -1666,7 +1673,7 @@ const ACH_CHECK={
   first_key:    g=>g.keys.some(k=>k.collected),
   key_master:   g=>g.keysCollected,
   key_speed:    g=>g.keysCollected&&g.time<240,
-  void_breaker: g=>g.voidBeastPhase==='ending'||g.voidBeastPhase==='defeated',
+  void_breaker: g=>g.voidBeastPhase==='ending'||g.voidBeastPhase==='defeated'||g.voidBeastPhase==='cleared',
   combo_king:   g=>g.comboMax>=20,
   combo_50:     g=>g.comboMax>=50,
   combo_100:    g=>g.comboMax>=100,
@@ -1773,6 +1780,25 @@ function loop(ts){
 // ═══════════════════════════════════════════
 // START
 // ═══════════════════════════════════════════
+function buildPauseAchievements(){
+  const list=document.getElementById('pause-ach-list');
+  const countEl=document.getElementById('pause-ach-count');
+  const total=ACHIEVEMENTS.length,unlocked=unlockedAch.size;
+  countEl.textContent=`(${unlocked}/${total})`;
+  list.innerHTML=ACHIEVEMENTS.map(a=>{
+    const got=unlockedAch.has(a.id);
+    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;
+      background:${got?'rgba(160,100,255,0.13)':'rgba(255,255,255,0.04)'};
+      border:1px solid ${got?'rgba(160,100,255,0.35)':'rgba(255,255,255,0.07)'}">
+      <span style="font-size:1.2em;opacity:${got?1:0.25}">${a.icon}</span>
+      <div>
+        <div style="font-size:clamp(10px,1.5vw,13px);color:${got?'#d0aaff':'#555577'};font-weight:bold">${a.name}</div>
+        <div style="font-size:clamp(9px,1.2vw,11px);color:${got?'#9080b0':'#3a3a55'}">${a.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function resumeGame(){
   if(!G||G.state!=='paused')return;
   G.state='playing';
@@ -1782,6 +1808,7 @@ function resumeGame(){
 
 function continueGame(){
   if(!G)return;
+  if(G.voidBeastPhase==='defeated')G.voidBeastPhase='cleared';
   G.state='playing';
   document.getElementById('overlay').classList.add('hidden');
   jZone.style.pointerEvents='';

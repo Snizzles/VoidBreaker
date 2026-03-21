@@ -143,6 +143,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.9.0 | Fix: game now playable after defeating Void Beast (Continue Playing no longer loops back to end screen); achievements panel added to pause screen showing unlocked/locked status for all 35 achievements |
 | v1.8.1 | Void Beast bolt count scaled by difficulty (3/5/7 per burst); Easy Void Beast HP cut to 100K; iOS touch zone expanded to full screen; key counter moved to HUD; level-up now offers 4 cards (3 random + heal); Chain Bolt damage numbers no longer green |
 | v1.8.0 | Difficulty modes: Easy / Normal / Hard; enemy scaling, heart drops, healing, and Void Beast stats all tuned per difficulty; max enemy cap raised to 200 |
 | v1.7.0 | Achievements (13 badges, localStorage-persistent, in-game toast notifications); Void Beast massively buffed; Continue Playing button on win screen |
