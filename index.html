@@ -138,7 +138,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.3</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.4</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -533,7 +533,8 @@ const DIFFS={
     heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
     hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
     spawnMin:.5,
-    voidHp:50000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
+    voidHp:15000,voidBoltDmg:18,voidBoltMin:1.2,voidBoltMax:2.0,voidBoltCount:3,voidBoltSpd:180,
+    voidSpiralInterval:0,voidRingInterval:0,
   },
   normal:{
     label:'NORMAL',col:'#b070ff',
@@ -542,7 +543,8 @@ const DIFFS={
     heartChance:.05,heartHeal:18,heartHealBoss:35,emergencyHeal:60,
     hpRate:100,hpCap:7,dmgRate:160,dmgCap:4,
     spawnMin:.35,
-    voidHp:500000,voidBoltDmg:30,voidBoltMin:0.8,voidBoltMax:1.4,voidBoltCount:5,
+    voidHp:15000,voidBoltDmg:24,voidBoltMin:0.7,voidBoltMax:1.2,voidBoltCount:5,voidBoltSpd:220,
+    voidSpiralInterval:4,voidRingInterval:0,
   },
   hard:{
     label:'HARD',col:'#ff4060',
@@ -551,7 +553,8 @@ const DIFFS={
     heartChance:.02,heartHeal:10,heartHealBoss:20,emergencyHeal:40,
     hpRate:65,hpCap:10,dmgRate:100,dmgCap:6,
     spawnMin:.25,
-    voidHp:1000000,voidBoltDmg:42,voidBoltMin:0.5,voidBoltMax:1.0,voidBoltCount:7,
+    voidHp:15000,voidBoltDmg:32,voidBoltMin:0.5,voidBoltMax:0.9,voidBoltCount:7,voidBoltSpd:260,
+    voidSpiralInterval:3,voidRingInterval:5,
   },
   sidney:{
     label:'SIDNEY MODE',col:'#00ddff',
@@ -560,7 +563,8 @@ const DIFFS={
     heartChance:.10,heartHeal:28,heartHealBoss:50,emergencyHeal:80,
     hpRate:200,hpCap:3,dmgRate:300,dmgCap:2,
     spawnMin:.5,
-    voidHp:50000,voidBoltDmg:20,voidBoltMin:1.4,voidBoltMax:2.4,voidBoltCount:3,
+    voidHp:15000,voidBoltDmg:18,voidBoltMin:1.2,voidBoltMax:2.0,voidBoltCount:3,voidBoltSpd:180,
+    voidSpiralInterval:0,voidRingInterval:0,
     noBosses:true,noTimer:true,
   },
 };
@@ -938,9 +942,12 @@ function update(g,dt){
       const d2=dist2(p,e);
       if(d2<rad2){
         const d=Math.sqrt(d2);
-        const a=angle(e,p),force=ws.pull*(1-d/ws.rad);
-        const pullDist=Math.min(force*dt,Math.max(0,d-(e.sz+13)));
-        e.x+=Math.cos(a)*pullDist;e.y+=Math.sin(a)*pullDist;
+        // Void Beast is anchored — damage but don't pull
+        if(!e.voidBeast){
+          const a=angle(e,p),force=ws.pull*(1-d/ws.rad);
+          const pullDist=Math.min(force*dt,Math.max(0,d-(e.sz+13)));
+          e.x+=Math.cos(a)*pullDist;e.y+=Math.sin(a)*pullDist;
+        }
         const dmg=dps*dt;e.hp-=dmg;g.totalDmg+=dmg;
       }
     }
@@ -1028,19 +1035,55 @@ function update(g,dt){
     // Boss rotation
     if(e.boss)e.rot=(e.rot||0)+2*dt;
 
-    // Void Beast ranged attack
+    // Void Beast attack patterns
     if(e.voidBeast){
+      const bs=g.diff.voidBoltSpd,bdmg=g.diff.voidBoltDmg;
+      // Aimed spread burst
       e.vbTimer-=dt;
       if(e.vbTimer<=0){
         e.vbTimer=rnd(g.diff.voidBoltMin,g.diff.voidBoltMax);
-        const ba=angle(e,p),bs=200;
+        const ba=angle(e,p);
         const cnt=g.diff.voidBoltCount,halfSpread=0.55;
         for(let bi=0;bi<cnt;bi++){
           const spread=cnt===1?0:lerp(-halfSpread,halfSpread,bi/(cnt-1));
           const a=ba+spread;
-          g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:g.diff.voidBoltDmg,sz:9});
+          g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs,vy:Math.sin(a)*bs,life:3.5,dmg:bdmg,sz:9});
         }
         snd('shoot');
+      }
+      // Spiral attack (Normal+Hard) — rotating arms fire in bursts with pauses
+      if(g.diff.voidSpiralInterval>0){
+        if(e.vbSpiralPhase===undefined){e.vbSpiralPhase='fire';e.vbSpiralCD=g.diff.voidSpiralInterval;e.vbSpiralT=0;}
+        e.vbSpiralA=(e.vbSpiralA||0)+2.5*dt;
+        if(e.vbSpiralPhase==='fire'){
+          e.vbSpiralT-=dt;
+          if(e.vbSpiralT<=0){
+            e.vbSpiralT=0.18;
+            const arms=3;
+            for(let ai=0;ai<arms;ai++){
+              const a=e.vbSpiralA+(ai/arms)*PI2;
+              g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs*.7,vy:Math.sin(a)*bs*.7,life:4,dmg:bdmg*.6,sz:7});
+            }
+          }
+          e.vbSpiralCD-=dt;
+          if(e.vbSpiralCD<=0){e.vbSpiralPhase='pause';e.vbSpiralCD=g.diff.voidSpiralInterval*.5;}
+        }else{
+          e.vbSpiralCD-=dt;
+          if(e.vbSpiralCD<=0){e.vbSpiralPhase='fire';e.vbSpiralCD=g.diff.voidSpiralInterval;}
+        }
+      }
+      // Ring attack (Hard only) — expanding ring of bolts
+      if(g.diff.voidRingInterval>0){
+        e.vbRingT=(e.vbRingT||g.diff.voidRingInterval)-dt;
+        if(e.vbRingT<=0){
+          e.vbRingT=g.diff.voidRingInterval;
+          const ringCnt=16;
+          for(let ri=0;ri<ringCnt;ri++){
+            const a=(ri/ringCnt)*PI2;
+            g.voidBolts.push({x:e.x,y:e.y,vx:Math.cos(a)*bs*.55,vy:Math.sin(a)*bs*.55,life:5,dmg:bdmg*.7,sz:8});
+          }
+          snd('shoot');
+        }
       }
     }
 

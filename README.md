@@ -57,7 +57,7 @@ Each weapon has 8 upgrade levels unlocked through the level-up system.
 
 Bosses spawn every 90 seconds: **Void Titan**, **Eclipse Horror**, and **Singularity**.
 
-The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has massive HP and fires spreads of crimson bolts. Defeat it to win — or keep playing after victory for endless mode.
+The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It's a stationary bullet-hell fight: dodge aimed bolt spreads, rotating spiral arms (Normal+), and expanding ring bursts (Hard). Defeat it to win — or keep playing after victory for endless mode.
 
 ## Pickups
 
@@ -140,11 +140,11 @@ Beyond XP gems and hearts, rare items can drop in the world:
 
 Choose your challenge at the start of each run:
 
-| Difficulty | Starting HP | Enemy Scaling | Heart Drops | Void Beast HP |
-|------------|-------------|---------------|-------------|---------------|
-| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | 50,000 (3 bolts/burst) |
-| Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | 500,000 (5 bolts/burst) |
-| Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | 1,000,000 (7 bolts/burst) |
+| Difficulty | Starting HP | Enemy Scaling | Heart Drops | Void Beast (15,000 HP all modes) |
+|------------|-------------|---------------|-------------|----------------------------------|
+| Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | Aimed spread (3 bolts) |
+| Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | Aimed spread (5 bolts) + spiral arms |
+| Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | Aimed spread (7 bolts) + spiral arms + ring bursts |
 | Sidney Mode | 150 | Slow (cap 3×) | 10% chance, 28 HP | — no bosses, no timer — |
 
 ---
@@ -153,6 +153,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.9.4 | Void Beast rework: HP unified to 15K across all difficulties; difficulty scales attack patterns (Easy: aimed spread, Normal: +spiral arms, Hard: +ring bursts); Void Beast now fully stationary (immune to Gravity Vortex pull); bullet-hell dodge-focused boss fight |
 | v1.9.3 | Bug fix pass: Continue Playing no longer kills at 10:00; bosses re-spawn after winning; version display corrected; combo score cap (10×); gems array bounded; Gravity Vortex no longer pulls enemies through player; Sidney Mode gets unlimited XP magnets and hides keys on end screen; star twinkle smoothed; weapons HUD cached; XP bar animation fixed on level-up; chain bolt validates targets; dead code removed |
 | v1.9.2 | Sidney Mode: no keys, no Void Gate, no boss references — pure survival sandbox; XP Magnet pickup added (drops 1-2×/run, pulls all gems to player for 5s) |
 | v1.9.1 | Sidney Mode: Easy stats, no time limit, no bosses — select at difficulty picker |
