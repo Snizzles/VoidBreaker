@@ -32,6 +32,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [x] **Achievements** — local badge system (first boss kill, 5-minute survival, ×20 combo, etc.) (v1.7.0)
 - [x] **Achievements on pause screen** — full achievement list with locked/unlocked status visible any time via ESC (v1.9.0)
 - [x] **Continue Playing fix** — game correctly resumes after defeating the Void Beast instead of looping back to the end screen (v1.9.0)
+- [x] **XP Magnet pickup** — rare world drop (1-2×/run) that pulls all XP gems to the player for 5 seconds (v1.9.2)
 - [x] **XP vacuum on key collect** — collecting a key automatically pulls all on-screen XP gems to the player (v1.8.1)
 - [ ] **Kill counter by enemy type** — end screen breakdown of what you killed
 - [ ] **Damage summary** — per-weapon damage % chart on the end screen

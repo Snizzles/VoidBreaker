@@ -59,6 +59,15 @@ Bosses spawn every 2 minutes: **Void Titan**, **Eclipse Horror**, and **Singular
 
 The **Void Beast** is the final boss — it spawns at the Void Gate when you return with all 3 keys. It has massive HP and fires spreads of crimson bolts. Defeat it to win — or keep playing after victory for endless mode.
 
+## Pickups
+
+Beyond XP gems and hearts, rare items can drop in the world:
+
+| Item | Rarity | Effect |
+|------|--------|--------|
+| 💗 Heart | ~2-10% per enemy death (difficulty-dependent) | Restores HP |
+| 🔮 XP Magnet | 1-2 times per run (timed) | Pulls all XP gems on screen to you for 5 seconds |
+
 ---
 
 ## Achievements
@@ -144,6 +153,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v1.9.2 | Sidney Mode: no keys, no Void Gate, no boss references — pure survival sandbox; XP Magnet pickup added (drops 1-2×/run, pulls all gems to player for 5s) |
 | v1.9.1 | Sidney Mode: Easy stats, no time limit, no bosses — select at difficulty picker |
 | v1.9.0 | Fix: game now playable after defeating Void Beast (Continue Playing no longer loops back to end screen); achievements panel added to pause screen showing unlocked/locked status for all 35 achievements |
 | v1.8.1 | Void Beast bolt count scaled by difficulty (3/5/7 per burst); Easy Void Beast HP cut to 100K; iOS touch zone expanded to full screen; key counter moved to HUD; level-up now offers 4 cards (3 random + heal); Chain Bolt damage numbers no longer green |
