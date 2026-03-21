@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>VOID BREAKER</title>
+<title>VOID BREAKER v1.9.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Courier New',monospace;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -1100,7 +1100,7 @@ function update(g,dt){
     if(e.hp<=0){
       const gc=e.boss?18:1,xg=e.xp/gc;
       for(let gi=0;gi<gc&&g.gems.length<MAX_GEMS;gi++)g.gems.push({x:e.x+rnd(-28,28),y:e.y+rnd(-28,28),xp:xg,
-        sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffff44':(e.xp>5?'#66ff66':'#44ffdd')});
+        sz:e.boss?8:(e.xp>5?5:3.5),col:e.boss?'#ffdd00':(e.xp>5?'#80ff40':'#40ffb0')});
       if(Math.random()<(e.boss?.85:g.diff.heartChance))g.gems.push({x:e.x,y:e.y,heart:true,sz:9,col:'#ff4060',heal:e.boss?g.diff.heartHealBoss:g.diff.heartHeal});
       // Juicy death particles
       spawnParts(e.x,e.y,e.boss?60:20,e.col,e.boss?220:180,.8,e.sz*.6);
