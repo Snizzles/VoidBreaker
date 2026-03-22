@@ -1164,7 +1164,7 @@ function update(g,dt){
     if(!k.guardsSpawned&&dist(p,k)<250){k.guardsSpawned=true;spawnKeyGuards(g,k)}
     if(dist(p,k)<30){
       k.collected=true;
-      g.xpVacuumTimer=3;
+      g.xpVacuumTimer=7;
       snd('key');shake(8);flashScreen('#00ffff',.45);
       spawnParts(k.x,k.y,40,'#00ffff',200,.8,7);
       spawnParts(k.x,k.y,20,'#ffffff',150,.5,4);
@@ -1511,6 +1511,26 @@ function draw(g){
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
+  // ── OFF-SCREEN XP MAGNET INDICATORS ──
+  for(const m of g.magnets){
+    const msx=m.x-cx,msy=m.y-cy;
+    if(msx>20&&msx<W-20&&msy>20&&msy<H-20)continue;
+    const mang=Math.atan2(msy-H/2,msx-W/2);
+    const margin=40;
+    const meX=clamp(W/2+Math.cos(mang)*(W/2-margin),margin,W-margin);
+    const meY=clamp(H/2+Math.sin(mang)*(H/2-margin),margin,H-margin);
+    const mPulse=.6+Math.sin(now*5+m.x)*.4;
+    ctx.save();ctx.translate(meX,meY);ctx.rotate(mang);
+    ctx.fillStyle='#ff50dc';ctx.globalAlpha=mPulse;
+    ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(-6,-7);ctx.lineTo(-6,7);ctx.closePath();ctx.fill();
+    ctx.restore();
+    const md=Math.floor(dist(p,m));
+    ctx.globalAlpha=mPulse*.85;ctx.fillStyle='#ff80ff';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+    ctx.fillText('◆',meX,meY-11);
+    ctx.fillText(md+'m',meX,meY+18);
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
   // ── VOID GATE OFF-SCREEN INDICATOR — hidden in Sidney Mode ──
   if(!g.diff.noBosses&&g.keysCollected&&g.voidBeastPhase===null){
     const gsx=0-cx,gsy=0-cy;
@@ -1534,6 +1554,30 @@ function draw(g){
     ctx.globalAlpha=blink;ctx.fillStyle='#ffcc00';ctx.font=`bold ${fontSize}px 'Courier New'`;ctx.textAlign='center';
     ctx.fillText('RETURN TO THE VOID GATE',W/2,H*.18);
     ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── VOID BEAST OFF-SCREEN INDICATOR — hidden in Sidney Mode ──
+  if(!g.diff.noBosses&&g.voidBeastPhase==='active'){
+    const vbEnemy=g.enemies.find(e=>e.voidBeast);
+    if(vbEnemy){
+      const vbsx=vbEnemy.x-cx,vbsy=vbEnemy.y-cy;
+      if(vbsx<20||vbsx>W-20||vbsy<20||vbsy>H-20){
+        const vbang=Math.atan2(vbsy-H/2,vbsx-W/2);
+        const margin=40;
+        const vbeX=clamp(W/2+Math.cos(vbang)*(W/2-margin),margin,W-margin);
+        const vbeY=clamp(H/2+Math.sin(vbang)*(H/2-margin),margin,H-margin);
+        const vbPulse=.7+Math.sin(now*4)*.3;
+        ctx.save();ctx.translate(vbeX,vbeY);ctx.rotate(vbang);
+        ctx.fillStyle='#cc0030';ctx.globalAlpha=vbPulse;
+        ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-7,-9);ctx.lineTo(-7,9);ctx.closePath();ctx.fill();
+        ctx.restore();
+        const vbd=Math.floor(dist(p,vbEnemy));
+        ctx.globalAlpha=vbPulse*.85;ctx.fillStyle='#ff2050';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+        ctx.fillText('BEAST',vbeX,vbeY-12);
+        ctx.fillText(vbd+'m',vbeX,vbeY+18);
+        ctx.globalAlpha=1;ctx.textAlign='left';
+      }
+    }
   }
 
   // ── VOID BEAST DEATH SEQUENCE ──
