@@ -470,7 +470,7 @@ const WDEFS=[
     desc:'Orbiting damage spheres',
     ld:['3 orbs','4 orbs','+damage','5 orbs','6 orbs','+size','7 orbs','8 orbs MAX'],
     maxLv:8,
-    stats(lv){return{cnt:3+Math.floor(lv*.65),dps:35+lv*15,orbitR:36+lv*3,rotSpd:1.9+lv*.18,sz:13+lv*2}}
+    stats(lv){return{cnt:3+Math.floor(lv*.65),dps:35+lv*15,orbitR:44+lv*3,rotSpd:1.9+lv*.18,sz:13+lv*2}}
   },
   { // 5: Gravity Vortex
     id:5,name:'GRAVITY VORTEX',icon:'🌀',col:'#ff40a0',
@@ -550,7 +550,7 @@ const DIFFS={
     label:'HARD',col:'#ff4060',
     desc:'Faster scaling, scarce healing. Veterans only.',
     startHp:75,
-    heartChance:.02,heartHeal:10,heartHealBoss:20,emergencyHeal:40,
+    heartChance:.03,heartHeal:12,heartHealBoss:22,emergencyHeal:40,
     hpRate:65,hpCap:10,dmgRate:100,dmgCap:6,
     spawnMin:.25,
     voidHp:15000,voidBoltDmg:32,voidBoltMin:0.5,voidBoltMax:0.9,voidBoltCount:7,voidBoltSpd:260,
@@ -1577,6 +1577,27 @@ function draw(g){
         ctx.fillText(vbd+'m',vbeX,vbeY+18);
         ctx.globalAlpha=1;ctx.textAlign='left';
       }
+    }
+  }
+
+  // ── REGULAR BOSS OFF-SCREEN INDICATOR ──
+  if(g.bossActive&&!g.bossActive.voidBeast){
+    const bsx=g.bossActive.x-cx,bsy=g.bossActive.y-cy;
+    if(bsx<20||bsx>W-20||bsy<20||bsy>H-20){
+      const bang=Math.atan2(bsy-H/2,bsx-W/2);
+      const margin=40;
+      const beX=clamp(W/2+Math.cos(bang)*(W/2-margin),margin,W-margin);
+      const beY=clamp(H/2+Math.sin(bang)*(H/2-margin),margin,H-margin);
+      const bPulse=.65+Math.sin(now*6)*.35;
+      ctx.save();ctx.translate(beX,beY);ctx.rotate(bang);
+      ctx.fillStyle='#ff4020';ctx.globalAlpha=bPulse;
+      ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-7,-9);ctx.lineTo(-7,9);ctx.closePath();ctx.fill();
+      ctx.restore();
+      const bd=Math.floor(dist(p,g.bossActive));
+      ctx.globalAlpha=bPulse*.85;ctx.fillStyle='#ff8844';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+      ctx.fillText('BOSS',beX,beY-12);
+      ctx.fillText(bd+'m',beX,beY+18);
+      ctx.globalAlpha=1;ctx.textAlign='left';
     }
   }
 
