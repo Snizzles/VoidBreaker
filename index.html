@@ -468,9 +468,9 @@ const WDEFS=[
   { // 4: Shadow Orbs
     id:4,name:'SHADOW ORBS',icon:'🌑',col:'#ffcc00',
     desc:'Orbiting damage spheres',
-    ld:['2 orbs','3 orbs','+damage','4 orbs','+size','5 orbs','6 orbs','7 orbs MAX'],
+    ld:['3 orbs','4 orbs','+damage','5 orbs','6 orbs','+size','7 orbs','8 orbs MAX'],
     maxLv:8,
-    stats(lv){return{cnt:2+Math.floor(lv*.72),dps:35+lv*15,orbitR:68+lv*5,rotSpd:1.9+lv*.18,sz:13+lv*2}}
+    stats(lv){return{cnt:3+Math.floor(lv*.65),dps:35+lv*15,orbitR:36+lv*3,rotSpd:1.9+lv*.18,sz:13+lv*2}}
   },
   { // 5: Gravity Vortex
     id:5,name:'GRAVITY VORTEX',icon:'🌀',col:'#ff40a0',
