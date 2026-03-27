@@ -659,7 +659,8 @@ function mkGame(){
       lv:1,xp:0,xpNext:12,
       weapons:[],// [{id,lv,timer,angle}]
       passives:{},// {id:lv}
-      iframes:0,lastAngle:0
+      iframes:0,lastAngle:0,
+      attrBonuses:{dmg:0,spd:0,hp:0,armor:0}
     },
     enemies:[],projs:[],gems:[],bombs:[],bolts:[],
     spawnT:2.5,spawnInt:1.5,
@@ -680,7 +681,6 @@ function mkGame(){
     stage2BeastsKilled:0,stage2BeastsTotal:3,stage2Kills:0,
     waveAnnounce:'',waveAnnounceTimer:0,
     stage2IntroTimer:6,// narrative intro countdown
-    attrBonuses:{dmg:0,spd:0,hp:0,armor:0},
   };
 }
 
