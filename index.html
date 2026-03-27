@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>VOID BREAKER v1.9.5</title>
+<title>VOID BREAKER v2.0.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Courier New',monospace;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -138,7 +138,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v1.9.5</div>
+  <div style="font-size:10px;color:#40304a;letter-spacing:3px;margin-top:-10px;margin-bottom:12px">v2.0.0</div>
   <div class="overlay-sub" id="ov-sub">
     Collect all 3 <b style="color:#00ffff">🔑 keys</b>, return to the <b style="color:#ffcc00">Void Gate</b>, and defeat the <b style="color:#cc0030">Void Beast</b> to <b style="color:#00ffdd">escape the void</b>!<br>
     Kill enemies → collect <b style="color:#40ffb0">◆ gems</b> → fill XP bar → <b style="color:#ffdd22">level up</b> → pick upgrades.<br>
@@ -156,6 +156,7 @@ canvas{display:block}
   <button class="btn" id="start-btn" onclick="startGame()">BEGIN MISSION</button>
   <button class="btn" id="retry-btn" style="display:none" onclick="startGame()">TRY AGAIN</button>
   <button class="btn" id="continue-btn" style="display:none" onclick="continueGame()">CONTINUE PLAYING</button>
+  <button class="btn" id="stage2-btn" style="display:none;background:linear-gradient(135deg,#0a4030,#1a8060);border-color:#40ffaa" onclick="startStage2(G)">DEFEND EARTH!</button>
 </div>
 
 <!-- Level Up Overlay -->
@@ -424,6 +425,53 @@ function drawBg(){
     ctx.beginPath();ctx.arc(sx,sy,s.sz,0,PI2);ctx.fill();
   }
   ctx.globalAlpha=1;
+  // Earth in Stage 2
+  if(G&&G.stage===2){
+    const er=Math.min(W,H)*.7;
+    // Slight parallax — Earth drifts gently with camera to feel like a distant background
+    const ex=W/2-camX*.04,ey=H+er*.4-camY*.02;
+    const now=performance.now()/1000;
+    // Atmosphere glow
+    const atm=ctx.createRadialGradient(ex,ey,er*.85,ex,ey,er*1.15);
+    atm.addColorStop(0,'rgba(80,180,255,0)');atm.addColorStop(.5,'rgba(80,180,255,.12)');atm.addColorStop(1,'rgba(80,180,255,0)');
+    ctx.fillStyle=atm;ctx.beginPath();ctx.arc(ex,ey,er*1.15,0,PI2);ctx.fill();
+    // Planet body
+    ctx.save();ctx.beginPath();ctx.arc(ex,ey,er,0,PI2);ctx.clip();
+    // Ocean base
+    const ocean=ctx.createRadialGradient(ex-er*.3,ey-er*.4,0,ex,ey,er);
+    ocean.addColorStop(0,'#1a4a8a');ocean.addColorStop(.5,'#0d3066');ocean.addColorStop(1,'#061830');
+    ctx.fillStyle=ocean;ctx.fillRect(ex-er,ey-er,er*2,er*2);
+    // Continents (simplified land masses using overlapping ellipses)
+    ctx.fillStyle='rgba(30,120,60,.45)';
+    const rot=now*.008;// very slow rotation
+    const lands=[
+      {cx:-.2,cy:-.25,rx:.25,ry:.2},// North America-ish
+      {cx:.15,cy:-.1,rx:.12,ry:.22},// Europe-ish
+      {cx:.25,cy:.15,rx:.15,ry:.15},// Africa-ish
+      {cx:-.35,cy:.1,rx:.2,ry:.12},// South America-ish
+      {cx:.5,cy:-.15,rx:.18,ry:.18},// Asia-ish
+    ];
+    for(const l of lands){
+      const lx=ex+Math.cos(rot+l.cx*3)*er*l.cx*1.1+Math.sin(rot)*er*.05;
+      const ly=ey+er*l.cy;
+      ctx.beginPath();ctx.ellipse(lx,ly,er*l.rx,er*l.ry,rot*.5,0,PI2);ctx.fill();
+    }
+    // Cloud wisps
+    ctx.fillStyle='rgba(255,255,255,.08)';
+    for(let i=0;i<6;i++){
+      const ca=rot*2+i*1.1;
+      const cx2=ex+Math.cos(ca)*er*.5,cy2=ey+Math.sin(ca*.7)*er*.3-er*.1;
+      ctx.beginPath();ctx.ellipse(cx2,cy2,er*.18,er*.04,ca*.3,0,PI2);ctx.fill();
+    }
+    ctx.restore();
+    // Specular highlight
+    const spec=ctx.createRadialGradient(ex-er*.35,ey-er*.45,0,ex,ey,er);
+    spec.addColorStop(0,'rgba(255,255,255,.09)');spec.addColorStop(.4,'rgba(255,255,255,.02)');spec.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=spec;ctx.beginPath();ctx.arc(ex,ey,er,0,PI2);ctx.fill();
+    // Rim light
+    ctx.strokeStyle='rgba(100,200,255,.2)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(ex,ey,er,0,PI2);ctx.stroke();
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -478,6 +526,13 @@ const WDEFS=[
     ld:['Small vortex','+pull','+radius','+damage','Wider area','+force','Large field','MAX PULL'],
     maxLv:8,
     stats(lv){return{rad:85+lv*16,pull:65+lv*22,dps:28+lv*16}}
+  },
+  { // 6: Combat Drones
+    id:6,name:'COMBAT DRONES',icon:'🛸',col:'#00ffaa',
+    desc:'Autonomous drones that orbit and auto-fire',
+    ld:['1 drone','2 drones','+damage','3 drones','+fire rate','4 drones','+range','5 drones MAX'],
+    maxLv:8,
+    stats(lv){return{cnt:1+Math.floor(lv*.55),cd:Math.max(.3,.8-lv*.06),dmg:18+lv*10,rng:220+lv*20,spd:350,orbitR:100+lv*8}}
   }
 ];
 
@@ -601,6 +656,13 @@ function mkGame(){
     voidBolts:[],
     xpVacuumTimer:0,
     magnets:[],magnetNext:rnd(120,240),magnetCount:0,// XP magnet drops
+    // Stage 2
+    stage:1,stage2Time:0,stage2Wave:0,stage2WaveTimer:3,stage2SpawnLeft:0,
+    stage2BetweenWaves:true,// true = counting down to next wave; false = spawning
+    stage2BeastsKilled:0,stage2BeastsTotal:3,stage2Kills:0,
+    waveAnnounce:'',waveAnnounceTimer:0,
+    stage2IntroTimer:6,// narrative intro countdown
+    attrBonuses:{dmg:0,spd:0,hp:0,armor:0},
   };
 }
 
@@ -618,6 +680,12 @@ function pStats(g){
     if(s.cdMult)cdMult*=s.cdMult;
     if(s.armor)armor+=s.armor;
   }
+  // Attribute point bonuses
+  const ab=g.p.attrBonuses||{dmg:0,spd:0,hp:0,armor:0};
+  dmgMult*=(1+ab.dmg*.05);
+  spdMult*=(1+ab.spd*.05);
+  hpBonus+=ab.hp*15;
+  armor+=ab.armor*3;
   return{dmgMult,spdMult,hpBonus,magnet,cdMult,armor};
 }
 
@@ -627,6 +695,7 @@ function pStats(g){
 function getChoices(g){
   const wc=[],pc=[];
   for(const d of WDEFS){
+    if(d.id===6&&g.stage<2)continue;// Combat Drones only available in Stage 2
     const ex=g.p.weapons.find(w=>w.id===d.id);
     if(!ex&&g.p.weapons.length<6)wc.push({type:'w',id:d.id,isNew:true});
     else if(ex&&ex.lv<d.maxLv)wc.push({type:'w',id:d.id,isNew:false,cur:ex.lv});
@@ -638,6 +707,19 @@ function getChoices(g){
   // Shuffle all
   const all=[...wc,...pc];
   for(let i=all.length-1;i>0;i--){const j=rndInt(0,i);[all[i],all[j]]=[all[j],all[i]]}
+  if(all.length===0){
+    // All upgrades maxed — offer attribute points
+    const attrs=[
+      {type:'attr',stat:'dmg',label:'+5% Damage',desc:'All weapons deal 5% more damage'},
+      {type:'attr',stat:'spd',label:'+5% Speed',desc:'Move 5% faster'},
+      {type:'attr',stat:'hp',label:'+15 Max HP',desc:'Increase max HP by 15 (heals too)'},
+      {type:'attr',stat:'armor',label:'+3 Armor',desc:'Take 3 less damage per hit'},
+    ];
+    for(let i=attrs.length-1;i>0;i--){const j=rndInt(0,i);[attrs[i],attrs[j]]=[attrs[j],attrs[i]]}
+    const out=attrs.slice(0,3);
+    out.push({type:'heal'});
+    return out;
+  }
   const out=all.slice(0,Math.min(3,all.length));
   // Always offer emergency heal as an option
   out.push({type:'heal'});
@@ -657,6 +739,14 @@ function applyChoice(g,c){
       p.maxHp=g.diff.startHp+ns.hpBonus;
       p.hp=Math.min(p.maxHp,p.hp+35);
     }
+  }else if(c.type==='attr'){
+    const ab=p.attrBonuses;
+    ab[c.stat]=(ab[c.stat]||0)+1;
+    if(c.stat==='hp'){
+      const ns=pStats(g);
+      p.maxHp=g.diff.startHp+ns.hpBonus;
+      p.hp=Math.min(p.maxHp,p.hp+15);
+    }
   }else{
     p.hp=Math.min(p.maxHp,p.hp+g.diff.emergencyHeal);
   }
@@ -666,7 +756,7 @@ function applyChoice(g,c){
 // SPAWNING
 // ═══════════════════════════════════════════
 function spawnEnemy(g,typeId){
-  const a=Math.random()*PI2,spawnDist=Math.max(W,H)*.5+90;
+  const a=Math.random()*PI2,spawnDist=Math.max(W,H)*.6+130;
   const x=g.p.x+Math.cos(a)*spawnDist,y=g.p.y+Math.sin(a)*spawnDist;
   let base;
   if(typeId!==undefined){base={...ETYPES[typeId]}}
@@ -782,15 +872,38 @@ function gainXP(g,amt){
   while(p.xp>=p.xpNext){
     p.xp-=p.xpNext;p.lv++;
     p.xpNext=Math.floor(12+p.lv*3);
-    // If all upgrades are maxed, just auto-level without pausing
-    if(hasUpgrades(g)){
-      g.pendingLU++;
-    }
+    g.pendingLU++;
     snd('levelup');
   }
   if(g.pendingLU>0&&g.state==='playing'){
     g.state='levelup';flashScreen('#c080ff',.35);showLU(g);
   }
+}
+
+// ═══════════════════════════════════════════
+// STAGE 2 WAVE DEFINITIONS
+// ═══════════════════════════════════════════
+const S2_WAVES=[
+  // {total, types:[{w,v}...], bosses:0, beasts:0}
+  {total:30,  types:[{w:6,v:0},{w:4,v:4}],                            bosses:0,beasts:0},// wave 1
+  {total:50,  types:[{w:5,v:0},{w:4,v:1},{w:3,v:4}],                  bosses:0,beasts:0},// wave 2
+  {total:80,  types:[{w:4,v:0},{w:3,v:1},{w:2,v:2},{w:3,v:4},{w:2,v:3}],bosses:1,beasts:0},// wave 3
+  {total:120, types:[{w:3,v:0},{w:2,v:1},{w:5,v:2},{w:3,v:4}],        bosses:0,beasts:0},// wave 4
+  {total:160, types:[{w:2,v:0},{w:3,v:3},{w:4,v:5},{w:3,v:4},{w:2,v:1}],bosses:2,beasts:0},// wave 5
+  {total:200, types:[{w:2,v:0},{w:2,v:1},{w:8,v:4}],                  bosses:0,beasts:0},// wave 6 - swarm flood
+  {total:250, types:[{w:3,v:0},{w:3,v:1},{w:3,v:2},{w:3,v:3},{w:3,v:4},{w:3,v:5}],bosses:2,beasts:0},// wave 7
+  {total:300, types:[{w:2,v:0},{w:5,v:1},{w:5,v:5},{w:3,v:4}],        bosses:0,beasts:0},// wave 8
+  {total:350, types:[{w:3,v:0},{w:3,v:1},{w:3,v:2},{w:4,v:3},{w:4,v:4},{w:4,v:5}],bosses:3,beasts:0},// wave 9
+  {total:400, types:[{w:2,v:0},{w:8,v:2},{w:3,v:4}],                  bosses:0,beasts:0},// wave 10 - brute army
+  {total:450, types:[{w:3,v:0},{w:3,v:1},{w:3,v:2},{w:3,v:3},{w:4,v:4},{w:3,v:5}],bosses:0,beasts:0},// wave 11
+  {total:500, types:[{w:3,v:0},{w:3,v:1},{w:3,v:2},{w:3,v:3},{w:4,v:4},{w:4,v:5}],bosses:0,beasts:3},// wave 12 - final
+];
+
+function s2PickEnemy(wave){
+  const arr=wave.types;
+  const tot=arr.reduce((s,a)=>s+a.w,0);let r=Math.random()*tot;
+  for(const a of arr){r-=a.w;if(r<=0)return a.v}
+  return arr[arr.length-1].v;
 }
 
 // ═══════════════════════════════════════════
@@ -801,8 +914,8 @@ function update(g,dt){
   const p=g.p,ps=pStats(g);
   if(g.voidBeastPhase!=='active')g.time+=dt;
 
-  // Void Gate: player must return to origin with all keys
-  if(g.keysCollected&&g.voidBeastPhase===null&&!g.diff.noBosses&&dist2(p,{x:0,y:0})<3600){
+  // Void Gate: player must return to origin with all keys (Stage 1 only)
+  if(g.stage===1&&g.keysCollected&&g.voidBeastPhase===null&&!g.diff.noBosses&&dist2(p,{x:0,y:0})<3600){
     g.voidBeastPhase='countdown';
     g.voidBeastCountdown=5;
     shake(8);flashScreen('#ffcc00',.3);
@@ -832,10 +945,10 @@ function update(g,dt){
     return;
   }
   // Lose at 10 min if not escaped (Sidney Mode and post-win have no timer)
-  if(g.time>=600&&!g.diff.noTimer&&g.voidBeastPhase!=='cleared'){g.state='dead';endScreen(g,false);return}
+  if(g.stage===1&&g.time>=600&&!g.diff.noTimer&&g.voidBeastPhase!=='cleared'&&g.voidBeastPhase!=='countdown'&&g.voidBeastPhase!=='active'&&g.voidBeastPhase!=='ending'){g.state='dead';endScreen(g,false);return}
 
-  // Boss trigger — only while Void Beast fight is not underway (Sidney Mode skips bosses)
-  if(g.time>=g.nextBoss&&(g.voidBeastPhase===null||g.voidBeastPhase==='cleared')&&!g.diff.noBosses){
+  // Boss trigger — only while Void Beast fight is not underway (Sidney Mode skips bosses, Stage 2 handles its own)
+  if(g.stage===1&&g.time>=g.nextBoss&&(g.voidBeastPhase===null||g.voidBeastPhase==='cleared')&&!g.diff.noBosses){
     g.nextBoss+=90;
     spawnBoss(g);
   }
@@ -888,6 +1001,26 @@ function update(g,dt){
     }else if(w.id===4){// Shadow Orbs - angle only
       w.angle=((w.angle||0)+ws.rotSpd*dt)%PI2;
     }else if(w.id===5){// Gravity Vortex - applied below
+    }else if(w.id===6){// Combat Drones
+      w.angle=((w.angle||0)+1.2*dt)%PI2;
+      const dws=WDEFS[6].stats(w.lv);
+      w.timer-=dt/ps.cdMult;
+      if(w.timer<=0&&g.enemies.length>0){
+        w.timer=dws.cd;
+        // Each drone fires at its nearest enemy
+        for(let di=0;di<dws.cnt;di++){
+          const da=(w.angle||0)+(di/dws.cnt)*PI2;
+          const dx=p.x+Math.cos(da)*dws.orbitR,dy=p.y+Math.sin(da)*dws.orbitR;
+          let near=null,nd=Infinity;
+          for(const e of g.enemies){const d=dist({x:dx,y:dy},e);if(d<dws.rng&&d<nd){nd=d;near=e}}
+          if(near){
+            const fa=angle({x:dx,y:dy},near);
+            g.projs.push({x:dx,y:dy,vx:Math.cos(fa)*dws.spd,vy:Math.sin(fa)*dws.spd,
+              dmg:dws.dmg*ps.dmgMult,sz:4,pierce:1,pc:0,
+              col:'#00ffaa',glow:'#00aa66',life:.8,ml:.8,wid:0,drone:true});
+          }
+        }
+      }
     }
   }
 
@@ -1026,7 +1159,7 @@ function update(g,dt){
       e.tpTimer-=dt;
       if(e.tpTimer<=0){
         e.tpTimer=rnd(3,7);
-        const a=Math.random()*PI2,d=rnd(140,280);
+        const a=Math.random()*PI2,d=rnd(240,380);
         e.x=p.x+Math.cos(a)*d;e.y=p.y+Math.sin(a)*d;
         spawnParts(e.x,e.y,12,e.col,110,.4,5);
       }
@@ -1087,8 +1220,8 @@ function update(g,dt){
       }
     }
 
-    // Move — Void Beast is stationary; others chase player
-    if(!e.voidBeast){
+    // Move — Void Beast is stationary in Stage 1, mobile in Stage 2; others chase player
+    if(!e.voidBeast||(e.voidBeast&&g.stage===2)){
       const edp=dist2(e,p);
       if(edp>(e.sz+12)*(e.sz+12)){
         const ea=angle(e,p);
@@ -1108,7 +1241,8 @@ function update(g,dt){
       if(e.boss){
         snd('explode');shake(18);flashScreen('#ff40a0',0.55);
         spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
-        if(e.voidBeast){g.voidBeastPhase='ending';g.voidEndTimer=4;}
+        if(e.voidBeast&&g.stage===2){g.stage2BeastsKilled++;}
+        else if(e.voidBeast){g.voidBeastPhase='ending';g.voidEndTimer=4;}
         else g.bossKills++;
         document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
         spawnNum(e.x,e.y-60,999,'#ffdd00');
@@ -1118,7 +1252,8 @@ function update(g,dt){
       // Combo system
       g.combo++;g.comboTimer=2.2;
       if(g.combo>g.comboMax)g.comboMax=g.combo;
-      g.kills++;g.score+=e.sc*Math.min(10,g.combo>=3?1+g.combo*.1:1);
+      g.kills++;if(g.stage===2)g.stage2Kills++;
+      g.score+=e.sc*Math.min(10,g.combo>=3?1+g.combo*.1:1);
       g.enemies.splice(i,1);continue;
     }
 
@@ -1193,15 +1328,95 @@ function update(g,dt){
   }
 
   // ── SPAWNING ──
-  g.spawnT-=dt;
-  if(g.spawnT<=0){
-    const cnt=Math.min(8,1+Math.floor(g.time/28));// cap at 8 per wave
-    if(g.enemies.length<MAX_ENEMIES){
-      const toSpawn=Math.min(cnt,MAX_ENEMIES-g.enemies.length);
-      for(let i=0;i<toSpawn;i++)spawnEnemy(g);
+  if(g.stage===2){
+    // Stage 2: wave-based spawning — two clear phases: BETWEEN (countdown) and SPAWNING
+    const maxE=800;
+    g.stage2Time+=dt;
+    if(g.waveAnnounceTimer>0)g.waveAnnounceTimer-=dt;
+    if(g.stage2IntroTimer>0)g.stage2IntroTimer-=dt;
+
+    if(g.stage2BetweenWaves){
+      // ── BETWEEN WAVES: count down, then launch next wave ──
+      if(g.stage2Wave<S2_WAVES.length){
+        g.stage2WaveTimer-=dt;
+        if(g.stage2WaveTimer<=0){
+          g.stage2Wave++;
+          const wv=S2_WAVES[g.stage2Wave-1];
+          g.stage2SpawnLeft=wv.total;
+          g.stage2BetweenWaves=false;
+          g.waveAnnounce=g.stage2Wave===12?'FINAL WAVE':'WAVE '+g.stage2Wave;
+          g.waveAnnounceTimer=3;
+          snd('boss');shake(6);flashScreen(g.stage2Wave===12?'#ff2040':'#40ffaa',.35);
+          // Bosses for this wave
+          for(let bi=0;bi<wv.bosses;bi++)setTimeout(()=>{if(g.state==='playing')spawnBoss(g)},bi*4000);
+          // Void Beasts (final wave only) — staggered 20s apart
+          if(wv.beasts>0){
+            for(let vi=0;vi<wv.beasts;vi++){
+              setTimeout(()=>{
+                if(g.state!=='playing')return;
+                const vba=Math.random()*PI2,vbd=Math.max(W,H)*.5+120;
+                const vb={id:99,name:'VOID BEAST',col:'#cc0030',glow:'#880010',
+                  hp:g.diff.voidHp*.6,maxHp:g.diff.voidHp*.6,spd:22,dmg:40,sz:48,xp:200,sc:1200,
+                  boss:true,voidBeast:true,x:g.p.x+Math.cos(vba)*vbd,y:g.p.y+Math.sin(vba)*vbd,
+                  flash:0,rot:0,vbTimer:3};
+                g.enemies.push(vb);g.bossActive=vb;
+                snd('boss');shake(12);flashScreen('#cc0030',.5);
+                document.getElementById('boss-wrap').style.display='block';
+                document.getElementById('boss-name').textContent='VOID BEAST '+(vi+1)+'/3';
+              },vi*20000);
+            }
+          }
+        }
+      }else{
+        // All 12 waves done — wait for enemies to clear then victory
+        if(g.enemies.length===0&&g.stage2BeastsKilled>=g.stage2BeastsTotal){
+          g.state='win';endScreen(g,true);return;
+        }
+      }
+    }else{
+      // ── SPAWNING PHASE: drip enemies into the world ──
+      g.spawnT-=dt;
+      if(g.spawnT<=0){
+        const wv=S2_WAVES[g.stage2Wave-1];
+        const burst=Math.min(4,g.stage2SpawnLeft);// small bursts — less jarring
+        const canSpawn=Math.min(burst,maxE-g.enemies.length);
+        const hpMult=1+g.stage2Wave*.3;
+        const dmgMult=(1+g.stage2Wave*.1)*g.diff.dmgCap*.25;// scale with difficulty
+        for(let i=0;i<canSpawn;i++){
+          const tid=s2PickEnemy(wv);
+          const a=Math.random()*PI2,sd=Math.max(W,H)*.6+130;
+          const base={...ETYPES[tid]};
+          g.enemies.push({...base,x:g.p.x+Math.cos(a)*sd,y:g.p.y+Math.sin(a)*sd,
+            maxHp:base.hp*hpMult,hp:base.hp*hpMult,dmg:base.dmg*dmgMult,flash:0,
+            tpTimer:rnd(3,7),leapTimer:rnd(1.5,3)});
+        }
+        // Always decrement by burst so we make progress even when arena is full
+        g.stage2SpawnLeft-=burst;
+        g.spawnT=Math.max(.12,.35-g.stage2Wave*.02);// faster ticks to compensate smaller burst
+      }
+      if(g.stage2SpawnLeft<=0){
+        // Spawning done — enter between-waves phase
+        g.stage2BetweenWaves=true;
+        const isLast=g.stage2Wave>=S2_WAVES.length;
+        g.stage2WaveTimer=isLast?0:10;// 10s gap between waves; no gap before final victory check
+        if(!isLast){
+          g.waveAnnounce='WAVE '+g.stage2Wave+' CLEAR!';
+          g.waveAnnounceTimer=2.5;
+        }
+      }
     }
-    g.spawnInt=Math.max(g.diff.spawnMin,1.5-g.time*.003);
-    g.spawnT=g.spawnInt;
+  }else{
+    // Stage 1: original spawning
+    g.spawnT-=dt;
+    if(g.spawnT<=0){
+      const cnt=Math.min(8,1+Math.floor(g.time/28));// cap at 8 per wave
+      if(g.enemies.length<MAX_ENEMIES){
+        const toSpawn=Math.min(cnt,MAX_ENEMIES-g.enemies.length);
+        for(let i=0;i<toSpawn;i++)spawnEnemy(g);
+      }
+      g.spawnInt=Math.max(g.diff.spawnMin,1.5-g.time*.003);
+      g.spawnT=g.spawnInt;
+    }
   }
 
   // Combo decay
@@ -1285,6 +1500,31 @@ function draw(g){
     }
   }
 
+  // ── COMBAT DRONES ──
+  const dw=p.weapons.find(w=>w.id===6);
+  if(dw){
+    const dws=WDEFS[6].stats(dw.lv);
+    for(let i=0;i<dws.cnt;i++){
+      const da=(dw.angle||0)+(i/dws.cnt)*PI2;
+      const dx=p.x+Math.cos(da)*dws.orbitR,dy=p.y+Math.sin(da)*dws.orbitR;
+      // Drone glow
+      ctx.fillStyle='rgba(0,255,170,.12)';
+      ctx.beginPath();ctx.arc(dx,dy,14,0,PI2);ctx.fill();
+      // Drone body (small triangle)
+      ctx.fillStyle='#00ffaa';
+      // Find nearest enemy for drone facing direction
+      let faceA=da+Math.PI/2;
+      for(const e of g.enemies){if(dist({x:dx,y:dy},e)<dws.rng){faceA=angle({x:dx,y:dy},e);break}}
+      ctx.save();ctx.translate(dx,dy);ctx.rotate(faceA);
+      ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-5);ctx.lineTo(-4,0);ctx.lineTo(-6,5);
+      ctx.closePath();ctx.fill();
+      ctx.restore();
+      // Core
+      ctx.fillStyle='#ffffff';
+      ctx.beginPath();ctx.arc(dx,dy,2.5,0,PI2);ctx.fill();
+    }
+  }
+
   // ── LASER WHIP ──
   const lw=p.weapons.find(w=>w.id===1);
   if(lw){
@@ -1359,7 +1599,7 @@ function draw(g){
   }
 
   // ── ENEMIES (with off-screen culling) ──
-  const cullL=camX-W/2-60,cullR=camX+W/2+60,cullT=camY-H/2-60,cullB=camY+H/2+60;
+  const cullL=camX-W/2-150,cullR=camX+W/2+150,cullT=camY-H/2-150,cullB=camY+H/2+150;
   for(const e of g.enemies){
     // Off-screen culling — skip drawing if outside viewport+margin
     if(e.x<cullL||e.x>cullR||e.y<cullT||e.y>cullB)continue;
@@ -1419,8 +1659,8 @@ function draw(g){
     ctx.beginPath();ctx.arc(p.x,p.y,4.5,0,PI2);ctx.fill();
   }
 
-  // ── KEYS (world space) — hidden in Sidney Mode ──
-  for(const k of g.diff.noBosses?[]:g.keys){
+  // ── KEYS (world space) — hidden in Sidney Mode and Stage 2 ──
+  for(const k of (g.diff.noBosses||g.stage===2)?[]:g.keys){
     if(k.collected)continue;
     const kpulse=.6+Math.sin(k.pulse*4)*.4;
     // Outer glow
@@ -1452,8 +1692,8 @@ function draw(g){
     ctx.textAlign='left';
   }
 
-  // ── VOID GATE (world origin) — hidden in Sidney Mode ──
-  if(!g.diff.noBosses&&g.voidBeastPhase!=='active'){
+  // ── VOID GATE (world origin) — hidden in Sidney Mode and Stage 2 ──
+  if(g.stage===1&&!g.diff.noBosses&&g.voidBeastPhase!=='active'){
     const gateX=0,gateY=0;
     if(g.keysCollected&&g.voidBeastPhase===null){
       // Active: bright glowing portal
@@ -1488,8 +1728,59 @@ function draw(g){
   // ── SCREEN FLASH (drawn after restore, in screen space) ──
   drawFlash();
 
-  // ── OFF-SCREEN KEY INDICATORS (screen space) — hidden in Sidney Mode ──
-  for(const k of g.diff.noBosses?[]:g.keys){
+  // ── STAGE 2 INTRO NARRATIVE ──
+  if(g.stage===2&&g.stage2IntroTimer>0){
+    const fade=Math.min(1,g.stage2IntroTimer/1.5);// fade out in last 1.5s
+    const lines=[
+      {t:'THE VOID BEAST FOLLOWED YOU HOME.',col:'#ff4040',y:.28},
+      {t:'IT HAS BROUGHT AN ARMADA.',col:'#ff8040',y:.36},
+      {t:'EARTH IS UNDER ATTACK.',col:'#ffdd00',y:.44},
+      {t:'DEFEND IT.',col:'#40ffaa',y:.55},
+    ];
+    const fsBase=Math.round(clamp(H*.033,14,30));
+    ctx.textAlign='center';
+    lines.forEach((l,i)=>{
+      const appear=Math.max(0,Math.min(1,(6-g.stage2IntroTimer-i*.6)/.4));
+      ctx.globalAlpha=appear*fade;
+      ctx.fillStyle=l.col;
+      ctx.font=`bold ${fsBase+(i===3?6:0)}px 'Courier New'`;
+      ctx.fillText(l.t,W/2,H*l.y);
+    });
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── WAVE ANNOUNCEMENT (Stage 2) ──
+  if(g.waveAnnounceTimer>0&&g.stage===2){
+    const wfade=Math.min(1,g.waveAnnounceTimer/.5);
+    const isClear=g.waveAnnounce.includes('CLEAR');
+    const isFinal=g.waveAnnounce==='FINAL WAVE';
+    ctx.globalAlpha=wfade;
+    const wfs=Math.round(clamp(H*.075,28,74));
+    ctx.textAlign='center';
+    ctx.fillStyle=isClear?'#80ffcc':isFinal?'#ff2040':'#40ffaa';
+    ctx.font=`bold ${wfs}px 'Courier New'`;
+    ctx.fillText(g.waveAnnounce,W/2,H*.38);
+    if(isFinal){
+      ctx.fillStyle='#ffdd00';ctx.font=`bold ${Math.round(wfs*.42)}px 'Courier New'`;
+      ctx.fillText('DESTROY ALL 3 VOID BEASTS',W/2,H*.38+wfs*.7);
+    }
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── BETWEEN-WAVES COUNTDOWN (Stage 2) ──
+  if(g.stage===2&&g.stage2BetweenWaves&&g.stage2Wave>0&&g.stage2Wave<S2_WAVES.length&&g.waveAnnounceTimer<=0&&g.stage2IntroTimer<=0){
+    const secs=Math.ceil(g.stage2WaveTimer);
+    const pulse=.7+Math.sin(now*4)*.3;
+    ctx.globalAlpha=pulse*.8;
+    ctx.fillStyle='#7090a0';
+    const tfs=Math.round(clamp(H*.025,12,22));
+    ctx.font=`${tfs}px 'Courier New'`;ctx.textAlign='center';
+    ctx.fillText('NEXT WAVE IN '+secs+'s',W/2,H*.18);
+    ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── OFF-SCREEN KEY INDICATORS (screen space) — hidden in Sidney Mode and Stage 2 ──
+  for(const k of (g.diff.noBosses||g.stage===2)?[]:g.keys){
     if(k.collected)continue;
     const sx=k.x-cx,sy=k.y-cy;
     // Check if on screen (with margin)
@@ -1531,8 +1822,8 @@ function draw(g){
     ctx.globalAlpha=1;ctx.textAlign='left';
   }
 
-  // ── VOID GATE OFF-SCREEN INDICATOR — hidden in Sidney Mode ──
-  if(!g.diff.noBosses&&g.keysCollected&&g.voidBeastPhase===null){
+  // ── VOID GATE OFF-SCREEN INDICATOR — hidden in Sidney Mode and Stage 2 ──
+  if(g.stage===1&&!g.diff.noBosses&&g.keysCollected&&g.voidBeastPhase===null){
     const gsx=0-cx,gsy=0-cy;
     if(gsx<20||gsx>W-20||gsy<20||gsy>H-20){
       const gang=Math.atan2(gsy-H/2,gsx-W/2);
@@ -1673,10 +1964,11 @@ function buildWeaponPicker(){
   const grid=document.getElementById('weapon-pick-grid');
   grid.innerHTML='';
   WDEFS.forEach(d=>{
+    if(d.id===6)return;// Combat Drones not available as a starting weapon
     const el=document.createElement('div');
     el.className='wpick'+(d.id===selectedWeapon?' selected':'');
     // Short one-liner per weapon for the picker
-    const blurbs=['Radial burst','Rotating beam','Explosive bombs','Chain lightning','Orbiting spheres','Gravity pull'];
+    const blurbs=['Radial burst','Rotating beam','Explosive bombs','Chain lightning','Orbiting spheres','Gravity pull','Auto-fire drones'];
     el.innerHTML=`<div class="wpick-icon">${d.icon}</div>
       <div class="wpick-name">${d.name}</div>
       <div class="wpick-desc">${blurbs[d.id]}</div>`;
@@ -1704,9 +1996,11 @@ function updateHUD(g){
   document.getElementById('h-lvl').textContent='LVL '+p.lv;
   document.getElementById('h-kills').textContent=g.kills+' ☠';
   const hk=document.getElementById('h-keys');
-  if(g.diff.noBosses){hk.style.display='none';}
+  if(g.stage===2){hk.style.display='';hk.textContent=`⚔ WAVE ${g.stage2Wave}/12`;hk.style.color=g.stage2Wave>=12?'#ff4060':'#40ffaa';}
+  else if(g.diff.noBosses){hk.style.display='none';}
   else{hk.style.display='';const kc=g.keys.filter(k=>k.collected).length;hk.textContent=`🔑 ${kc}/3`;hk.style.color=kc>=3?'#00ff88':'#00ffff';}
-  const m=Math.floor(g.time/60),s=Math.floor(g.time%60);
+  const timeVal=g.stage===2?g.stage2Time:g.time;
+  const m=Math.floor(timeVal/60),s=Math.floor(timeVal%60);
   document.getElementById('h-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('hp-fill').style.width=(p.hp/p.maxHp)*100+'%';
   const wh=document.getElementById('weapons-hud');
@@ -1746,6 +2040,18 @@ function showLU(g){
         <div class="cn">${d.name}</div>
         <div class="cl">${lv===0?'Permanent stat bonus':'Level '+lv+' → '+(lv+1)}</div>
         <div class="cd">${d.ld[lv]||d.desc}</div>`;
+    }else if(c.type==='attr'){
+      const icons={dmg:'⚡',spd:'💨',hp:'❤️',armor:'🛡️'};
+      const cols={dmg:'#ffdd00',spd:'#60ddff',hp:'#ff4060',armor:'#a0a0ff'};
+      const cur=g.p.attrBonuses[c.stat]||0;
+      card.className='card';
+      card.style.borderColor=cols[c.stat];
+      card.innerHTML=`
+        <div class="card-tag" style="background:#1a1a30;color:${cols[c.stat]}">✦ ATTRIBUTE</div>
+        <div class="ci">${icons[c.stat]}</div>
+        <div class="cn">${c.label}</div>
+        <div class="cl">Currently: +${cur} points</div>
+        <div class="cd">${c.desc}</div>`;
     }else{
       card.className='card';
       card.innerHTML=`
@@ -1816,6 +2122,11 @@ const ACHIEVEMENTS=[
   {id:'weapon_max',  icon:'⚔️',name:'Mastered',             desc:'Fully upgrade any weapon to level 8'},
   {id:'weapon_triple',icon:'⚔️',name:'Triple Mastery',      desc:'Max out 3 weapons to level 8'},
   {id:'passives_3',  icon:'🛡️',name:'Augmented',            desc:'Unlock 3 different passive upgrades'},
+  // ── Stage 2 ──
+  {id:'earth_defender',icon:'🌍',name:'Earth Defender',      desc:'Complete Stage 2 — Defend Earth'},
+  {id:'drone_master',  icon:'🛸',name:'Drone Commander',     desc:'Max out Combat Drones to level 8'},
+  {id:'wave_10',       icon:'⚔️',name:'Wave Crusher',         desc:'Reach Wave 10 in Stage 2'},
+  {id:'triple_beast',  icon:'🏆',name:'Beast Slayer',         desc:'Kill all 3 Void Beasts in the final wave'},
 ];
 const ACH_CHECK={
   first_blood:  g=>g.kills>=1,
@@ -1853,6 +2164,10 @@ const ACH_CHECK={
   weapon_max:   g=>g.p.weapons.some(w=>w.lv>=8),
   weapon_triple:g=>g.p.weapons.filter(w=>w.lv>=8).length>=3,
   passives_3:   g=>Object.keys(g.p.passives).length>=3,
+  earth_defender:g=>g.stage===2&&g.state==='win',
+  drone_master: g=>g.p.weapons.some(w=>w.id===6&&w.lv>=8),
+  wave_10:      g=>g.stage===2&&g.stage2Wave>=10,
+  triple_beast: g=>g.stage===2&&g.stage2BeastsKilled>=3,
 };
 
 let unlockedAch=new Set(JSON.parse(localStorage.getItem('vb_ach')||'[]'));
@@ -1900,16 +2215,28 @@ function endScreen(g,won){
   const ts=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const keysGot=g.keys.filter(k=>k.collected).length;
   const timedOut=!won&&g.time>=600&&!g.diff.noTimer;
-  title.textContent=won?'✦ VOID ESCAPED ✦':timedOut?'✗ CONSUMED BY THE VOID ✗':'✗ DEFEATED ✗';
-  title.style.color=won?'#00ffdd':'#ff4060';
-  title.style.textShadow=won?'0 0 20px #00ffaa,0 0 50px #0088cc':'0 0 20px #ff0000';
-  sub.textContent=won?'The Void Beast is slain — you have escaped the void!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
+  if(g.stage===2){
+    title.textContent=won?'✦ EARTH IS SAVED ✦':'✗ EARTH HAS FALLEN ✗';
+    title.style.color=won?'#40ffaa':'#ff4060';
+    title.style.textShadow=won?'0 0 20px #20ff88,0 0 50px #00aa44':'0 0 20px #ff0000';
+    sub.textContent=won?'You defeated the armada! Earth is safe!':'The void armada overwhelmed you. Earth has fallen.';
+  }else{
+    title.textContent=won?'✦ VOID ESCAPED ✦':timedOut?'✗ CONSUMED BY THE VOID ✗':'✗ DEFEATED ✗';
+    title.style.color=won?'#00ffdd':'#ff4060';
+    title.style.textShadow=won?'0 0 20px #00ffaa,0 0 50px #0088cc':'0 0 20px #ff0000';
+    sub.textContent=won?'The Void Beast is slain — you have escaped the void!':timedOut?'Time ran out. Collect all 3 keys before 10:00!':'The void consumed you. Try again.';
+  }
   stats.style.display='block';
   const achCount=unlockedAch.size,achTotal=ACHIEVEMENTS.length;
+  const s2extra=g.stage===2?`Wave: <span class="sh">${g.stage2Wave}/12</span><br>
+    Stage 2 Kills: <span class="sh">${g.stage2Kills.toLocaleString()}</span><br>
+    Void Beasts Slain: <span class="sh">${g.stage2BeastsKilled}/${g.stage2BeastsTotal}</span><br>`:'';
   stats.innerHTML=`Difficulty: <span class="sh" style="color:${g.diff.col}">${g.diff.label}</span><br>
-    ${g.diff.noBosses?'':`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>`}
+    ${g.stage===2?'Stage: <span class="sh">2 — DEFEND EARTH</span><br>':''}
+    ${g.diff.noBosses||g.stage===2?'':`Keys: <span class="sh">🔑 ${keysGot}/3</span><br>`}
     Survived: <span class="sh">${ts}</span><br>
     Kills: <span class="sh">${g.kills.toLocaleString()}</span><br>
+    ${s2extra}
     Level: <span class="sh">${g.p.lv}</span><br>
     Score: <span class="sh">${Math.floor(g.score).toLocaleString()}</span><br>
     Damage: <span class="sh">${Math.floor(g.totalDmg).toLocaleString()}</span><br>
@@ -1917,6 +2244,7 @@ function endScreen(g,won){
   document.getElementById('start-btn').style.display='none';
   document.getElementById('retry-btn').style.display='block';
   document.getElementById('continue-btn').style.display=won?'block':'none';
+  document.getElementById('stage2-btn').style.display=(won&&g.stage===1)?'block':'none';
   // Show weapon/difficulty pickers so player can change before retrying
   document.getElementById('diff-pick-section').style.display='block';
   document.getElementById('weapon-pick-section').style.display='block';
@@ -1976,6 +2304,42 @@ function continueGame(){
   jZone.style.pointerEvents='';
 }
 
+function startStage2(g){
+  if(!g)return;
+  g.stage=2;g.stage2Time=0;g.stage2Wave=0;g.stage2WaveTimer=5;g.stage2SpawnLeft=0;
+  g.stage2BetweenWaves=true;g.stage2BeastsKilled=0;g.stage2Kills=0;
+  g.stage2IntroTimer=6;
+  g.state='playing';
+  // Clear battlefield
+  g.enemies=[];g.projs=[];g.gems=[];g.bombs=[];g.bolts=[];g.voidBolts=[];g.magnets=[];
+  g.bossActive=null;g.voidBeastPhase=null;
+  parts=[];nums=[];
+  // Reset player position
+  g.p.x=0;g.p.y=0;g.p.iframes=1;
+  camX=0;camY=0;
+  // Reset spawn timers
+  g.spawnT=3;g.spawnInt=1.5;g.combo=0;g.comboTimer=0;
+  // Stage 2 starts at wave 1 after a brief delay
+  g.stage2WaveTimer=3;
+  g.waveAnnounce='DEFEND EARTH!';g.waveAnnounceTimer=3;
+  // UI
+  document.getElementById('overlay').classList.add('hidden');
+  document.getElementById('lu-overlay').classList.add('hidden');
+  document.getElementById('boss-wrap').style.display='none';
+  jZone.style.pointerEvents='';
+  // Hint
+  const hint=document.getElementById('hint');
+  hint.textContent='Survive 12 waves! The Void Beast followed you home!';
+  hint.style.display='block';hint.classList.remove('fade');
+  hintTimers.forEach(clearTimeout);hintTimers=[];
+  hintTimers.push(setTimeout(()=>hint.classList.add('fade'),4000));
+  hintTimers.push(setTimeout(()=>hint.style.display='none',5200));
+  // Update HUD
+  const hd=document.getElementById('h-diff');
+  hd.textContent='STAGE 2';hd.style.color='#40ffaa';
+  snd('boss');shake(12);flashScreen('#00ffdd',.5);
+}
+
 function startGame(){
   try{ac()}catch(e){}// unlock audio
   // Reset global state
@@ -2013,6 +2377,7 @@ function startGame(){
   document.getElementById('start-btn').style.display='block';
   document.getElementById('continue-btn').style.display='none';
   document.getElementById('retry-btn').style.display='none';
+  document.getElementById('stage2-btn').style.display='none';
   document.getElementById('boss-wrap').style.display='none';
   document.getElementById('hud').style.display='block';
   document.getElementById('hp-wrap').style.display='block';

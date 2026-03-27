@@ -30,6 +30,7 @@ Weapons fire **automatically** — your only job is to move.
 | 🔗 Chain Bolt | Lightning that chains between multiple enemies |
 | 🌑 Shadow Orbs | Orbiting damage spheres that circle the player |
 | 🌀 Gravity Vortex | Pulls enemies inward and deals continuous damage |
+| 🛸 Combat Drones | Autonomous drones that orbit you and auto-fire at enemies |
 
 Each weapon has 8 upgrade levels unlocked through the level-up system.
 
@@ -72,7 +73,7 @@ Beyond XP gems and hearts, rare items can drop in the world:
 
 ## Achievements
 
-35 achievements tracked in your browser across all runs. Unlock notifications appear in-game when earned; your total is shown on the end screen.
+39 achievements tracked in your browser across all runs. Unlock notifications appear in-game when earned; your total is shown on the end screen.
 
 | Achievement | How to unlock |
 |-------------|---------------|
@@ -111,6 +112,26 @@ Beyond XP gems and hearts, rare items can drop in the world:
 | ⚔️ Mastered | Fully upgrade any weapon to level 8 |
 | ⚔️ Triple Mastery | Max out 3 weapons to level 8 |
 | 🛡️ Augmented | Unlock 3 different passive upgrades |
+| 🌍 Earth Defender | Complete Stage 2 — Defend Earth |
+| 🛸 Drone Commander | Max out Combat Drones to level 8 |
+| ⚔️ Wave Crusher | Reach Wave 10 in Stage 2 |
+| 🏆 Beast Slayer | Kill all 3 Void Beasts in the final wave |
+
+---
+
+## Stage 2: Defend Earth!
+
+After defeating the Void Beast and escaping the void, the beast followed you home. Earth is under attack — defend it!
+
+- **Triggered** from the win screen after completing Stage 1
+- **12 waves** of increasingly massive enemy swarms — way more enemies than Stage 1
+- **Keep your build** — all weapons, passives, and levels carry over from Stage 1
+- **Final wave** features 3 mobile Void Beasts that chase you simultaneously
+- **Combat Drones** — a new weapon available in the level-up system: autonomous drones orbit you and auto-fire at nearby enemies
+- **Attribute points** — when all weapon/passive upgrades are maxed, level-ups offer repeatable stat boosts (+5% Damage, +5% Speed, +15 Max HP, +3 Armor)
+- **Earth in the background** — the planet is visible behind the battle, giving weight to what you're defending
+
+Win by killing all 3 Void Beasts in the final wave.
 
 ---
 
@@ -153,6 +174,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v2.0.0 | **Stage 2: Defend Earth!** — 12-wave defense mode after beating Stage 1; Earth background; Combat Drones weapon (auto-fire orbiting drones); attribute point system for infinite scaling when upgrades are maxed; 3 mobile Void Beasts in final wave; 4 new achievements |
 | v1.9.5 | Restore original weapon colors — each weapon is now a distinct hue (purple, cyan, orange, green, gold, pink); fix XP gem colors back to original green/mint/gold |
 | v1.9.4 | Void Beast rework: HP unified to 15K across all difficulties; difficulty scales attack patterns (Easy: aimed spread, Normal: +spiral arms, Hard: +ring bursts); Void Beast now fully stationary (immune to Gravity Vortex pull); bullet-hell dodge-focused boss fight |
 | v1.9.3 | Bug fix pass: Continue Playing no longer kills at 10:00; bosses re-spawn after winning; version display corrected; combo score cap (10×); gems array bounded; Gravity Vortex no longer pulls enemies through player; Sidney Mode gets unlimited XP magnets and hides keys on end screen; star twinkle smoothed; weapons HUD cached; XP bar animation fixed on level-up; chain bolt validates targets; dead code removed |

@@ -21,7 +21,7 @@ This document tracks planned features, improvements, and long-term design goals.
 ### Weapons
 - [ ] **Ricochet Round** — bullet that bounces off enemies up to N times, angle-reflected
 - [ ] **Void Spike** — fires a single massive piercing beam in the direction of movement
-- [ ] **Drone Swarm** — deploys auto-targeting mini-drones that orbit at long range and track enemies independently
+- [x] **Combat Drones** — deploys auto-targeting mini-drones that orbit and track enemies independently (v2.0.0)
 
 ### Passives
 - [ ] **Leech Core** — restore a small amount of HP per kill
@@ -50,6 +50,12 @@ This document tracks planned features, improvements, and long-term design goals.
 - [ ] **Persistent currency** — earn "Void Shards" each run based on score, usable between runs
 - [ ] **Unlock tree** — spend Void Shards to permanently unlock weapons/passives that appear more often, or start with a bonus stat
 - [ ] **Run records** — save best time, highest score, and max combo per difficulty locally
+
+### Stage 2: Defend Earth
+- [x] **Stage 2 game mode** — 12-wave defense mode triggered after Stage 1 victory; Earth background; player keeps full build; massive enemy counts (v2.0.0)
+- [x] **Attribute point system** — repeatable stat boosts (+5% Damage, +5% Speed, +15 Max HP, +3 Armor) when all weapon/passive upgrades are maxed (v2.0.0)
+- [x] **Multi-Void Beast final wave** — 3 mobile Void Beasts in Wave 12 as the ultimate challenge (v2.0.0)
+- [ ] **Stage 2 balance tuning** — wave enemy counts, HP scaling, and Void Beast stats may need adjustment after playtesting
 
 ### New Content
 - [ ] **2 new boss types**
