@@ -174,6 +174,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v2.0.1 | Fix: attribute point level-ups in late Stage 2 no longer stack 10-20 mandatory pause screens — bonuses now silently cycle through stats (Damage → Speed → HP → Armor) without interrupting gameplay |
 | v2.0.0 | **Stage 2: Defend Earth!** — 12-wave defense mode after beating Stage 1; Earth background; Combat Drones weapon (auto-fire orbiting drones); attribute point system for infinite scaling when upgrades are maxed; 3 mobile Void Beasts in final wave; 4 new achievements |
 | v1.9.5 | Restore original weapon colors — each weapon is now a distinct hue (purple, cyan, orange, green, gold, pink); fix XP gem colors back to original green/mint/gold |
 | v1.9.4 | Void Beast rework: HP unified to 15K across all difficulties; difficulty scales attack patterns (Easy: aimed spread, Normal: +spiral arms, Hard: +ring bursts); Void Beast now fully stationary (immune to Gravity Vortex pull); bullet-hell dodge-focused boss fight |

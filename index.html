@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>VOID BREAKER v2.0.0</title>
+<title>VOID BREAKER v2.0.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Courier New',monospace;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -872,8 +872,17 @@ function gainXP(g,amt){
   while(p.xp>=p.xpNext){
     p.xp-=p.xpNext;p.lv++;
     p.xpNext=Math.floor(12+p.lv*3);
-    g.pendingLU++;
-    snd('levelup');
+    if(hasUpgrades(g)){
+      g.pendingLU++;
+      snd('levelup');
+    }else{
+      // All upgrades maxed — silently rotate attribute bonuses; no pause
+      const ab=p.attrBonuses;
+      const CYCLE=['dmg','spd','hp','armor'];
+      const stat=CYCLE[p.lv%CYCLE.length];
+      ab[stat]=(ab[stat]||0)+1;
+      if(stat==='hp'){const ns=pStats(g);p.maxHp=g.diff.startHp+ns.hpBonus;p.hp=Math.min(p.maxHp,p.hp+15);}
+    }
   }
   if(g.pendingLU>0&&g.state==='playing'){
     g.state='levelup';flashScreen('#c080ff',.35);showLU(g);
