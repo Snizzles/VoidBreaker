@@ -715,7 +715,7 @@ function getChoices(g){
   for(const d of WDEFS){
     if(d.id===6&&g.stage<2)continue;// Combat Drones only available in Stage 2
     const ex=g.p.weapons.find(w=>w.id===d.id);
-    if(!ex&&g.p.weapons.length<6)wc.push({type:'w',id:d.id,isNew:true});
+    if(!ex&&g.p.weapons.length<7)wc.push({type:'w',id:d.id,isNew:true});
     else if(ex&&ex.lv<d.maxLv)wc.push({type:'w',id:d.id,isNew:false,cur:ex.lv});
   }
   for(const d of PDEFS){
@@ -876,7 +876,7 @@ function explode(g,b){
 function hasUpgrades(g){
   for(const d of WDEFS){
     const ex=g.p.weapons.find(w=>w.id===d.id);
-    if(!ex&&g.p.weapons.length<6)return true;
+    if(!ex&&g.p.weapons.length<7)return true;
     if(ex&&ex.lv<d.maxLv)return true;
   }
   for(const d of PDEFS){
