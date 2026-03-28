@@ -174,6 +174,7 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v2.0.3 | QA pass: fix `hasUpgrades()` stage filter for Drones; fix HUD showing WAVE 0/12; fix achievement description; balance — Gravity Vortex DPS buffed; Hard mode start HP 75→100; Stage 2 wave HP scaling coefficient 0.3→0.25 |
 | v2.0.2 | Fix: Combat Drones now correctly become available in Stage 2 level-up offers — weapon slot cap raised from 6→7 to accommodate all 7 weapons |
 | v2.0.1 | Fix: attribute point level-ups in late Stage 2 no longer stack 10-20 mandatory pause screens — bonuses now silently cycle through stats (Damage → Speed → HP → Armor) without interrupting gameplay |
 | v2.0.0 | **Stage 2: Defend Earth!** — 12-wave defense mode after beating Stage 1; Earth background; Combat Drones weapon (auto-fire orbiting drones); attribute point system for infinite scaling when upgrades are maxed; 3 mobile Void Beasts in final wave; 4 new achievements |

@@ -543,7 +543,7 @@ const WDEFS=[
     desc:'Pulls and damages nearby enemies',
     ld:['Small vortex','+pull','+radius','+damage','Wider area','+force','Large field','MAX PULL'],
     maxLv:8,
-    stats(lv){return{rad:85+lv*16,pull:65+lv*22,dps:28+lv*16}}
+    stats(lv){return{rad:85+lv*16,pull:65+lv*22,dps:45+lv*20}}
   },
   { // 6: Combat Drones
     id:6,name:'COMBAT DRONES',icon:'🛸',col:'#00ffaa',
@@ -622,7 +622,7 @@ const DIFFS={
   hard:{
     label:'HARD',col:'#ff4060',
     desc:'Faster scaling, scarce healing. Veterans only.',
-    startHp:75,
+    startHp:100,
     heartChance:.03,heartHeal:12,heartHealBoss:22,emergencyHeal:40,
     hpRate:65,hpCap:10,dmgRate:100,dmgCap:6,
     spawnMin:.25,
@@ -875,6 +875,7 @@ function explode(g,b){
 // ═══════════════════════════════════════════
 function hasUpgrades(g){
   for(const d of WDEFS){
+    if(d.id===6&&g.stage<2)continue;// Combat Drones only available in Stage 2
     const ex=g.p.weapons.find(w=>w.id===d.id);
     if(!ex&&g.p.weapons.length<7)return true;
     if(ex&&ex.lv<d.maxLv)return true;
@@ -1407,7 +1408,7 @@ function update(g,dt){
         const wv=S2_WAVES[g.stage2Wave-1];
         const burst=Math.min(4,g.stage2SpawnLeft);// small bursts — less jarring
         const canSpawn=Math.min(burst,maxE-g.enemies.length);
-        const hpMult=1+g.stage2Wave*.3;
+        const hpMult=1+g.stage2Wave*.25;
         const dmgMult=(1+g.stage2Wave*.1)*g.diff.dmgCap*.25;// scale with difficulty
         for(let i=0;i<canSpawn;i++){
           const tid=s2PickEnemy(wv);
@@ -2023,7 +2024,7 @@ function updateHUD(g){
   document.getElementById('h-lvl').textContent='LVL '+p.lv;
   document.getElementById('h-kills').textContent=g.kills+' ☠';
   const hk=document.getElementById('h-keys');
-  if(g.stage===2){hk.style.display='';hk.textContent=`⚔ WAVE ${g.stage2Wave}/12`;hk.style.color=g.stage2Wave>=12?'#ff4060':'#40ffaa';}
+  if(g.stage===2){const wDisp=Math.max(1,g.stage2Wave);hk.style.display='';hk.textContent=`⚔ WAVE ${wDisp}/12`;hk.style.color=wDisp>=12?'#ff4060':'#40ffaa';}
   else if(g.diff.noBosses){hk.style.display='none';}
   else{hk.style.display='';const kc=g.keys.filter(k=>k.collected).length;hk.textContent=`🔑 ${kc}/3`;hk.style.color=kc>=3?'#00ff88':'#00ffff';}
   const timeVal=g.stage===2?g.stage2Time:g.time;
@@ -2145,7 +2146,7 @@ const ACHIEVEMENTS=[
   {id:'iron_will',   icon:'⏱️',name:'Iron Will',            desc:'Survive for 7 minutes'},
   // ── Build / Loadout ──
   {id:'arsenal',     icon:'🔫',name:'Arsenal',              desc:'Equip 4 weapons simultaneously'},
-  {id:'fully_armed', icon:'🔫',name:'Walking Armory',       desc:'Equip all 6 weapons simultaneously'},
+  {id:'fully_armed', icon:'🔫',name:'Walking Armory',       desc:'Equip 6 weapons simultaneously'},
   {id:'weapon_max',  icon:'⚔️',name:'Mastered',             desc:'Fully upgrade any weapon to level 8'},
   {id:'weapon_triple',icon:'⚔️',name:'Triple Mastery',      desc:'Max out 3 weapons to level 8'},
   {id:'passives_3',  icon:'🛡️',name:'Augmented',            desc:'Unlock 3 different passive upgrades'},

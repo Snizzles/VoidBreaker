@@ -56,7 +56,7 @@ This document tracks planned features, improvements, and long-term design goals.
 - [x] **Attribute point system** — repeatable stat boosts (+5% Damage, +5% Speed, +15 Max HP, +3 Armor) when all weapon/passive upgrades are maxed (v2.0.0)
 - [x] **Multi-Void Beast final wave** — 3 mobile Void Beasts in Wave 12 as the ultimate challenge (v2.0.0)
 - [x] **Combat Drones available in Stage 2** — weapon slot cap raised 6→7 so a fully-armed Stage 1 player can still unlock Drones (v2.0.2)
-- [ ] **Stage 2 balance tuning** — wave enemy counts, HP scaling, and Void Beast stats may need adjustment after playtesting
+- [x] **Stage 2 balance tuning** — wave HP scaling reduced 0.3→0.25; Gravity Vortex DPS buffed; Hard mode start HP raised 75→100 (v2.0.3)
 
 ### New Content
 - [ ] **2 new boss types**
