@@ -123,7 +123,8 @@ Beyond XP gems and hearts, rare items can drop in the world:
 
 After defeating the Void Beast and escaping the void, the beast followed you home. Earth is under attack — defend it!
 
-- **Triggered** from the win screen after completing Stage 1
+- **Triggered** from the win screen after completing Stage 1, via the **Earth Portal** in Sidney Mode (walk to the glowing green portal at the map origin), or via **Skip to Stage 2 — Full Build** on the home screen
+- **Sidney Mode → Stage 2:** build your loadout stress-free, then step into the portal at origin whenever you're ready to launch the defense
 - **12 waves** of increasingly massive enemy swarms — way more enemies than Stage 1
 - **Keep your build** — all weapons, passives, and levels carry over from Stage 1
 - **Final wave** features 3 mobile Void Beasts that chase you simultaneously
@@ -166,7 +167,7 @@ Choose your challenge at the start of each run:
 | Easy | 150 | Slow (cap 3×) | 10% chance, 28 HP | Aimed spread (3 bolts) |
 | Normal | 100 | Standard (cap 7×) | 5% chance, 18 HP | Aimed spread (5 bolts) + spiral arms |
 | Hard | 75 | Fast (cap 10×) | 2% chance, 10 HP | Aimed spread (7 bolts) + spiral arms + ring bursts |
-| Sidney Mode | 150 | Slow (cap 3×) | 10% chance, 28 HP | — no bosses, no timer — |
+| Sidney Mode | 150 | Slow (cap 3×) | 10% chance, 28 HP | — no bosses, no timer — walk to Earth Portal at origin to launch Stage 2 |
 
 ---
 
@@ -174,6 +175,9 @@ Choose your challenge at the start of each run:
 
 | Version | Notes |
 |---------|-------|
+| v2.0.6 | Home screen "Skip to Stage 2 — Full Build" button: jumps straight into Stage 2 with all 6 weapons and all passives maxed (Combat Drones excluded, available via level-ups in Stage 2) |
+| v2.0.5 | Stage 2 fixes: enemy spawn distance reduced (just off-screen instead of deep off-screen); wave-clear now waits for all enemies to die before starting countdown; Wave 12 Void Beasts all arrive within 6s instead of 20s apart |
+| v2.0.4 | Sidney Mode: Earth Portal waypoint at map origin — walk in to launch Stage 2 whenever you're ready |
 | v2.0.3 | QA pass: fix `hasUpgrades()` stage filter for Drones; fix HUD showing WAVE 0/12; fix achievement description; balance — Gravity Vortex DPS buffed; Hard mode start HP 75→100; Stage 2 wave HP scaling coefficient 0.3→0.25 |
 | v2.0.2 | Fix: Combat Drones now correctly become available in Stage 2 level-up offers — weapon slot cap raised from 6→7 to accommodate all 7 weapons |
 | v2.0.1 | Fix: attribute point level-ups in late Stage 2 no longer stack 10-20 mandatory pause screens — bonuses now silently cycle through stats (Damage → Speed → HP → Armor) without interrupting gameplay |

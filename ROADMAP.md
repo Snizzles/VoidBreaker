@@ -57,6 +57,8 @@ This document tracks planned features, improvements, and long-term design goals.
 - [x] **Multi-Void Beast final wave** — 3 mobile Void Beasts in Wave 12 as the ultimate challenge (v2.0.0)
 - [x] **Combat Drones available in Stage 2** — weapon slot cap raised 6→7 so a fully-armed Stage 1 player can still unlock Drones (v2.0.2)
 - [x] **Stage 2 balance tuning** — wave HP scaling reduced 0.3→0.25; Gravity Vortex DPS buffed; Hard mode start HP raised 75→100 (v2.0.3)
+- [x] **Stage 2 bug fixes** — enemy spawn distance pulled in (just off-screen); wave-clear waits for enemies to die; Wave 12 Void Beasts arrive within 6s (v2.0.5)
+- [x] **Skip to Stage 2 — Full Build** — home screen button launches Stage 2 immediately with all weapons/passives maxed; Combat Drones available via in-game level-ups (v2.0.6)
 
 ### New Content
 - [ ] **2 new boss types**
@@ -76,6 +78,7 @@ This document tracks planned features, improvements, and long-term design goals.
 
 ### Game Modes
 - [x] **Sidney Mode** — Easy difficulty with no time limit and no boss spawns; relaxed exploration for players who want to grind builds without pressure (v1.9.1)
+- [x] **Sidney Mode → Stage 2 portal** — Earth Portal waypoint at map origin glows green after 15s; walk into it to launch Stage 2 with your Sidney build (v2.0.4)
 - [ ] **Endless mode** — no key/timer win condition; pure score chase with a global leaderboard
 - [ ] **Challenge runs** — pre-set loadouts with specific win conditions ("Survive 5 minutes with only Shadow Orbs and no passives")
 - [ ] **Daily run** — seeded random loadout that resets every 24h, shared score board

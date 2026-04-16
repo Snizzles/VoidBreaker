@@ -138,7 +138,7 @@ canvas{display:block}
 <!-- Main Overlay -->
 <div id="overlay">
   <div class="overlay-title" id="ov-title">VOID BREAKER</div>
-  <div style="font-size:11px;color:#9070bb;letter-spacing:4px;margin-top:-4px;margin-bottom:28px">v2.0</div>
+  <div style="font-size:11px;color:#9070bb;letter-spacing:4px;margin-top:-4px;margin-bottom:28px">v2.0.6</div>
   <div id="menu-brief">
     <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;width:min(560px,86vw)">
       <div style="flex:1;text-align:center;padding:16px 8px;border:1px solid rgba(55,45,110,0.6);border-radius:8px;background:rgba(8,6,24,0.5)">
@@ -175,6 +175,7 @@ canvas{display:block}
   <button class="btn" id="retry-btn" style="display:none" onclick="startGame()">TRY AGAIN</button>
   <button class="btn" id="continue-btn" style="display:none" onclick="continueGame()">CONTINUE PLAYING</button>
   <button class="btn" id="stage2-btn" style="display:none;background:linear-gradient(135deg,#0a4030,#1a8060);border-color:#40ffaa" onclick="startStage2(G)">DEFEND EARTH!</button>
+  <button class="btn" id="stage2-direct-btn" style="background:linear-gradient(135deg,#0a1830,#162050);border-color:#3060c8;font-size:clamp(10px,1.3vw,14px)" onclick="startStage2Direct()">SKIP TO STAGE 2 — FULL BUILD</button>
 </div>
 
 <!-- Level Up Overlay -->
@@ -681,6 +682,8 @@ function mkGame(){
     stage2BeastsKilled:0,stage2BeastsTotal:3,stage2Kills:0,
     waveAnnounce:'',waveAnnounceTimer:0,
     stage2IntroTimer:6,// narrative intro countdown
+    // Sidney Mode: Earth Portal (leads to Stage 2)
+    sidneyPortalCooldown:15,// 15s warmup so player isn't teleported from spawn
   };
 }
 
@@ -941,6 +944,12 @@ function update(g,dt){
   if(g.state!=='playing')return;
   const p=g.p,ps=pStats(g);
   if(g.voidBeastPhase!=='active')g.time+=dt;
+
+  // Sidney Mode: Earth Portal at origin — walk in to launch Stage 2
+  if(g.stage===1&&g.diff.noBosses){
+    if(g.sidneyPortalCooldown>0){g.sidneyPortalCooldown-=dt;}
+    else if(dist2(p,{x:0,y:0})<3600){startStage2(g);return;}
+  }
 
   // Void Gate: player must return to origin with all keys (Stage 1 only)
   if(g.stage===1&&g.keysCollected&&g.voidBeastPhase===null&&!g.diff.noBosses&&dist2(p,{x:0,y:0})<3600){
@@ -1269,10 +1278,20 @@ function update(g,dt){
       if(e.boss){
         snd('explode');shake(18);flashScreen('#ff40a0',0.55);
         spawnParts(e.x,e.y,40,'#ffdd00',250,1,12);
-        if(e.voidBeast&&g.stage===2){g.stage2BeastsKilled++;}
-        else if(e.voidBeast){g.voidBeastPhase='ending';g.voidEndTimer=4;}
-        else g.bossKills++;
-        document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
+        if(e.voidBeast&&g.stage===2){
+          g.stage2BeastsKilled++;
+          // Keep bar alive if other Void Beasts remain
+          const nextBeast=g.enemies.find((b,j)=>b.voidBeast&&j!==i);
+          if(nextBeast){
+            g.bossActive=nextBeast;
+            const left=g.stage2BeastsTotal-g.stage2BeastsKilled;
+            document.getElementById('boss-name').textContent='VOID BEAST \u00d7'+left+' REMAIN';
+          }else{document.getElementById('boss-wrap').style.display='none';g.bossActive=null;}
+        }else if(e.voidBeast){g.voidBeastPhase='ending';g.voidEndTimer=4;
+          document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
+        }else{g.bossKills++;
+          document.getElementById('boss-wrap').style.display='none';g.bossActive=null;
+        }
         spawnNum(e.x,e.y-60,999,'#ffdd00');
       }else{
         snd('hit');shake(1.5);
@@ -1377,7 +1396,7 @@ function update(g,dt){
           snd('boss');shake(6);flashScreen(g.stage2Wave===12?'#ff2040':'#40ffaa',.35);
           // Bosses for this wave
           for(let bi=0;bi<wv.bosses;bi++)setTimeout(()=>{if(g.state==='playing')spawnBoss(g)},bi*4000);
-          // Void Beasts (final wave only) — staggered 20s apart
+          // Void Beasts (final wave only) — all three arrive within 6s
           if(wv.beasts>0){
             for(let vi=0;vi<wv.beasts;vi++){
               setTimeout(()=>{
@@ -1391,7 +1410,7 @@ function update(g,dt){
                 snd('boss');shake(12);flashScreen('#cc0030',.5);
                 document.getElementById('boss-wrap').style.display='block';
                 document.getElementById('boss-name').textContent='VOID BEAST '+(vi+1)+'/3';
-              },vi*20000);
+              },vi*3000);// 0s, 3s, 6s — coordinated assault
             }
           }
         }
@@ -1412,7 +1431,7 @@ function update(g,dt){
         const dmgMult=(1+g.stage2Wave*.1)*g.diff.dmgCap*.25;// scale with difficulty
         for(let i=0;i<canSpawn;i++){
           const tid=s2PickEnemy(wv);
-          const a=Math.random()*PI2,sd=Math.max(W,H)*.6+130;
+          const a=Math.random()*PI2,sd=Math.max(W/2,H/2)+100;
           const base={...ETYPES[tid]};
           g.enemies.push({...base,x:g.p.x+Math.cos(a)*sd,y:g.p.y+Math.sin(a)*sd,
             maxHp:base.hp*hpMult,hp:base.hp*hpMult,dmg:base.dmg*dmgMult,flash:0,
@@ -1422,8 +1441,8 @@ function update(g,dt){
         g.stage2SpawnLeft-=burst;
         g.spawnT=Math.max(.12,.35-g.stage2Wave*.02);// faster ticks to compensate smaller burst
       }
-      if(g.stage2SpawnLeft<=0){
-        // Spawning done — enter between-waves phase
+      if(g.stage2SpawnLeft<=0&&g.enemies.length===0){
+        // All enemies spawned AND defeated — enter between-waves phase
         g.stage2BetweenWaves=true;
         const isLast=g.stage2Wave>=S2_WAVES.length;
         g.stage2WaveTimer=isLast?0:10;// 10s gap between waves; no gap before final victory check
@@ -1746,6 +1765,31 @@ function draw(g){
     }
   }
 
+  // ── EARTH PORTAL (Sidney Mode) — at origin, leads to Stage 2 ──
+  if(g.stage===1&&g.diff.noBosses){
+    const ex=0,ey=0,ready=g.sidneyPortalCooldown<=0;
+    if(ready){
+      const pgr=ctx.createRadialGradient(ex,ey,0,ex,ey,50);
+      pgr.addColorStop(0,'rgba(0,255,160,.35)');pgr.addColorStop(.6,'rgba(0,180,100,.18)');pgr.addColorStop(1,'rgba(0,180,100,0)');
+      ctx.fillStyle=pgr;ctx.beginPath();ctx.arc(ex,ey,50,0,PI2);ctx.fill();
+      ctx.strokeStyle='#40ffaa';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(ex,ey,30+Math.sin(now*3)*4,0,PI2);ctx.stroke();
+      ctx.strokeStyle='#00cc88';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(ex,ey,40+Math.sin(now*2.5+1)*5,0,PI2);ctx.stroke();
+      if(Math.random()<.15)spawnParts(ex+rnd(-25,25),ey+rnd(-25,25),1,'#40ffaa',40,.5,3);
+      ctx.globalAlpha=.8+Math.sin(now*2)*.2;
+      ctx.fillStyle='#40ffaa';ctx.font="bold 11px 'Courier New'";ctx.textAlign='center';
+      ctx.fillText('DEFEND EARTH',ex,ey-46);
+      ctx.globalAlpha=1;ctx.textAlign='left';
+    }else{
+      const pp=.2+Math.sin(now*1.5)*.1;
+      ctx.strokeStyle=`rgba(0,200,120,${pp})`;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(ex,ey,28+Math.sin(now*1.5)*3,0,PI2);ctx.stroke();
+      ctx.strokeStyle=`rgba(0,200,120,${pp*.5})`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(ex,ey,38+Math.sin(now+1)*4,0,PI2);ctx.stroke();
+    }
+  }
+
   // ── PARTICLES (world space — already in translated context) ──
   drawParts();
   drawNums();
@@ -1873,6 +1917,31 @@ function draw(g){
     ctx.globalAlpha=blink;ctx.fillStyle='#ffcc00';ctx.font=`bold ${fontSize}px 'Courier New'`;ctx.textAlign='center';
     ctx.fillText('RETURN TO THE VOID GATE',W/2,H*.18);
     ctx.globalAlpha=1;ctx.textAlign='left';
+  }
+
+  // ── EARTH PORTAL OFF-SCREEN INDICATOR (Sidney Mode) ──
+  if(g.stage===1&&g.diff.noBosses&&g.sidneyPortalCooldown<=0){
+    const epsx=0-cx,epsy=0-cy;
+    if(epsx<20||epsx>W-20||epsy<20||epsy>H-20){
+      const epang=Math.atan2(epsy-H/2,epsx-W/2);
+      const margin=40;
+      const epeX=clamp(W/2+Math.cos(epang)*(W/2-margin),margin,W-margin);
+      const epeY=clamp(H/2+Math.sin(epang)*(H/2-margin),margin,H-margin);
+      ctx.save();ctx.translate(epeX,epeY);ctx.rotate(epang);
+      ctx.fillStyle='#40ffaa';ctx.globalAlpha=.9;
+      ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-7,-8);ctx.lineTo(-7,8);ctx.closePath();ctx.fill();
+      ctx.restore();
+      const epd=Math.floor(dist(p,{x:0,y:0}));
+      ctx.globalAlpha=.75;ctx.fillStyle='#40ffaa';ctx.font="bold 10px 'Courier New'";ctx.textAlign='center';
+      ctx.fillText(epd+'m',epeX,epeY+20);
+      ctx.globalAlpha=1;ctx.textAlign='left';
+      // Blinking label
+      const pblink=Math.sin(now*4)>.1?1:.3;
+      const pfs=Math.max(14,Math.min(28,W*.03));
+      ctx.globalAlpha=pblink;ctx.fillStyle='#40ffaa';ctx.font=`bold ${pfs}px 'Courier New'`;ctx.textAlign='center';
+      ctx.fillText('RETURN TO EARTH PORTAL',W/2,H*.18);
+      ctx.globalAlpha=1;ctx.textAlign='left';
+    }
   }
 
   // ── VOID BEAST OFF-SCREEN INDICATOR — hidden in Sidney Mode ──
@@ -2275,6 +2344,7 @@ function endScreen(g,won){
   document.getElementById('retry-btn').style.display='block';
   document.getElementById('continue-btn').style.display=won?'block':'none';
   document.getElementById('stage2-btn').style.display=(won&&g.stage===1)?'block':'none';
+  document.getElementById('stage2-direct-btn').style.display='none';
   // Show weapon/difficulty pickers so player can change before retrying
   document.getElementById('diff-pick-section').style.display='block';
   document.getElementById('weapon-pick-section').style.display='block';
@@ -2370,6 +2440,32 @@ function startStage2(g){
   snd('boss');shake(12);flashScreen('#00ffdd',.5);
 }
 
+function startStage2Direct(){
+  try{ac()}catch(e){}
+  parts=[];nums=[];
+  camX=0;camY=0;shk=0;shkX=0;shkY=0;lastXPPct=0;flashAlpha=0;
+  hintTimers.forEach(clearTimeout);hintTimers=[];
+  G=mkGame();
+  // All weapons at level 8 — Combat Drones (id 6) excluded
+  G.p.weapons=[0,1,2,3,4,5].map(id=>({id,lv:8,timer:0,angle:0}));
+  // All passives at max level
+  for(let id=0;id<PDEFS.length;id++) G.p.passives[id]=PDEFS[id].maxLv;
+  // Recalculate maxHp with HP Matrix maxed
+  const ps=pStats(G);
+  G.p.maxHp=G.diff.startHp+ps.hpBonus;
+  G.p.hp=G.p.maxHp;
+  // Level = 1 base + 48 weapon upgrades (6×8) + 30 passive upgrades (6×5)
+  G.p.lv=79;
+  // Transition — startStage2 assumes HUD is already visible, so we handle that after
+  startStage2(G);
+  document.getElementById('pause-overlay').classList.add('hidden');
+  document.getElementById('end-stats').style.display='none';
+  document.getElementById('hud').style.display='block';
+  document.getElementById('hp-wrap').style.display='block';
+  document.getElementById('weapons-hud').innerHTML='';
+  updateHUD(G);
+}
+
 function startGame(){
   try{ac()}catch(e){}// unlock audio
   // Reset global state
@@ -2381,7 +2477,7 @@ function startGame(){
   hintTimers.forEach(clearTimeout);hintTimers=[];
   const hint=document.getElementById('hint');
   hint.textContent=selectedDifficulty==='sidney'
-    ?'Kill enemies → collect ◆ gems → level up → survive as long as you can!'
+    ?'Kill enemies → level up your build → return to the Earth Portal at origin to launch Stage 2!'
     :'Collect 3 🔑 keys → return to the Void Gate → defeat the Void Beast to escape!';
   hint.style.display='block';hint.classList.remove('fade');
   hintTimers.push(setTimeout(()=>hint.classList.add('fade'),5000));
